@@ -1,0 +1,12 @@
+@host = http://localhost:5051
+
+POST {{host}}/tickets
+Content-Type: application/json
+
+{ "title": "Test", "description": "This is a test ticket.", "priorityId": 2 }
+
+###
+GET {{host}}/tickets
+
+###
+DELETE {{host}}/tickets/tk-111
