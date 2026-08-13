@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
-namespace IssueTracker.Middleware;
+namespace API.Middleware;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {

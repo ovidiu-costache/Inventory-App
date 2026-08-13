@@ -1,0 +1,32 @@
+@host = http://localhost:5051
+
+### GET Products
+GET {{host}}/api/products
+
+### POST Product
+POST {{host}}/api/products
+Content-Type: application/json
+
+{ 
+  "code": "PROD-001",
+  "name": "Test Product",
+  "categoryId": 1,
+  "unitOfMeasure": "buc",
+  "price": 100.50 
+}
+
+### GET Stock Movements
+GET {{host}}/api/stock-movements
+
+### POST Stock Movement (Intrare)
+POST {{host}}/api/stock-movements
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "movementTypeId": 1,
+  "quantity": 10,
+  "reason": "Initial stock",
+  "referenceCode": "DOC-123",
+  "createdByUserId": 1
+}

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
 using Infrastructure.Services;
-using IssueTracker.Endpoints;
-using IssueTracker.Middleware;
+using API.Endpoints;
+using API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,9 +38,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-var itemsGroup = app.MapGroup("/items");
+// Products
+var productsGroup = app.MapGroup("/api/products");
+productsGroup.MapProductReadEndpoints();
+productsGroup.MapProductWriteEndpoints();
 
-itemsGroup.MapItemReadEndpoints();
-itemsGroup.MapItemWriteEndpoints();
+// Stock Movements
+var stockMovementsGroup = app.MapGroup("/api/stock-movements");
+stockMovementsGroup.MapStockMovementReadEndpoints();
+stockMovementsGroup.MapStockMovementWriteEndpoints();
+
+// Notifications
+var notificationsGroup = app.MapGroup("/api/notifications");
+notificationsGroup.MapNotificationEndpoints();
 
 app.Run();
