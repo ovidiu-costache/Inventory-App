@@ -1,6 +1,6 @@
 namespace Domain.Entities;
 
-public class TicketStatus
+public class MovementType
 {
     public byte Id { get; set; }
     public string Name { get; set; } = string.Empty;
