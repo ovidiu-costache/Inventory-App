@@ -1,6 +1,4 @@
-using System.Data;
 using Application.DTOs;
-using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
@@ -14,8 +12,9 @@ public class DbServices {
         _db = db;
     }
     
-    public async Task<(IReadOnlyList<ProductDto> Items, bool HasMore)> GetProductsPageAsync(int? lastId, int pageSize)
+    public async Task<(IReadOnlyList<ProductDto>, bool)> GetProductsPageAsync(int? lastId, int pageSize)
     {
+        // SQL sp_GetProductsPage
         var items = await _db.Database.SqlQuery<ProductDto>(
                 $"EXEC sp_GetProductsPage @LastId = {lastId}, @PageSize = {pageSize}")
             .ToListAsync();
@@ -29,11 +28,34 @@ public class DbServices {
     
     public async Task<ProductDto?> GetProductAsync(int id)
     {
+        // SQL sp_GetProduct
         var results = await _db.Database.SqlQuery<ProductDto>(
                 $"EXEC sp_GetProduct @Id = {id}")
             .ToListAsync();
 
         return results.FirstOrDefault();
+    }
+    
+    public async Task<(IReadOnlyList<StockMovementDto>, bool)> GetMovementsPageAsync(int? lastId, int pageSize)
+    {
+        // SQL sp_GetMovementsPage
+        var items = await _db.Database.SqlQuery<StockMovementDto>(
+                $"EXEC sp_GetMovementsPage @LastId = {lastId}, @PageSize = {pageSize}")
+            .ToListAsync();
+
+        bool hasMore = items.Count > pageSize;
+        if (items.Count > pageSize) {
+            items.RemoveAt(items.Count - 1);
+        }
+        return (items, hasMore);
+    }
+    
+    public async Task<IReadOnlyList<StockMovementDto>> GetMovementsForProductAsync(int productId)
+    {
+        // SQL sp_GetMovementsForProduct
+        return await _db.Database.SqlQuery<StockMovementDto>(
+                $"EXEC sp_GetMovementsForProduct @ProductId = {productId}")
+            .ToListAsync();
     }
 
     public async Task<ProductDto> CreateProductAsync(CreateProductDto dto)

@@ -1,6 +1,6 @@
 namespace Application.DTOs;
 
-public record GetProductsPageDto<T>(
+public record GetItemsPageDto<T>(
     IReadOnlyList<T> Items,
     int? LastId,
     bool HasMore
