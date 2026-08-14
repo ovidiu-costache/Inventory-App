@@ -1,6 +1,7 @@
 namespace Application.DTOs;
 
 public sealed record UpdateProductDto(
+    string? Code = null,
     string? Name = null,
     string? Description = null,
     int? CategoryId = null,
