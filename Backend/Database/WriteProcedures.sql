@@ -135,3 +135,36 @@ BEGIN
     END CATCH
 END;
 GO
+
+DROP PROCEDURE IF EXISTS sp_SoftDeleteProduct;
+GO
+
+CREATE PROCEDURE sp_SoftDeleteProduct
+    @Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Product must exist (50001 maps to HTTP 404 Not Found)
+        IF NOT EXISTS (SELECT 1 FROM Product WHERE Id = @Id)
+            THROW 50001, 'Product not found.', 1;
+
+        BEGIN TRAN;
+            -- Soft delete by setting IsActive to 0 (false)
+            UPDATE Product 
+            SET IsActive = 0 
+            WHERE Id = @Id;
+        COMMIT TRAN;
+
+        -- Return a simple success flag
+        SELECT CAST(1 AS bit) AS Success;
+        
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRAN;
+        THROW;
+    END CATCH
+END;
+GO
