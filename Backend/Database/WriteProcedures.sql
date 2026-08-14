@@ -48,7 +48,7 @@ BEGIN
             p.CurrentStock,
             p.ReorderThreshold,
             p.IsActive,
-            c.Name AS CategoryName
+            c.Name AS Category
         FROM Product p
         JOIN Category c ON c.Id = p.CategoryId
         WHERE p.Id = @NewProductId;
