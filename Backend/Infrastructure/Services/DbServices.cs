@@ -26,6 +26,15 @@ public class DbServices {
         }
         return (items, hasMore);
     }
+    
+    public async Task<ProductDto?> GetProductAsync(int id)
+    {
+        var results = await _db.Database.SqlQuery<ProductDto>(
+                $"EXEC sp_GetProduct @Id = {id}")
+            .ToListAsync();
+
+        return results.FirstOrDefault();
+    }
 
     public async Task<ProductDto> CreateProductAsync(CreateProductDto dto)
     {
