@@ -7,7 +7,7 @@ GO
 USE InventoryAppDb;
 GO
 
--- Lookup tables
+-- Lookup Tables
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Category')
 BEGIN
@@ -42,11 +42,11 @@ BEGIN
     );
     
     INSERT INTO AppUser (Username, FullName) 
-    VALUES ('admin', 'Administrator'), ('operator_depozit1', 'Operator 1'), ('operator_depozit2', 'Operator 2');
+    VALUES ('admin', 'Admin InvetoryApp'), ('operator_depozit_pc', 'Stanescu Dan'), ('operator_depozit_periferice', 'Lucescu Mihai');
 END
 GO
 
--- Main tables
+-- Main Tables
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Product')
 BEGIN
@@ -101,6 +101,28 @@ BEGIN
 END
 GO
 
--- Mock data
+-- Mock Data
 
--- TBD
+IF NOT EXISTS (SELECT TOP 1 1 FROM Product)
+BEGIN
+    INSERT INTO Product (Code, Name, Description, CategoryId, UnitOfMeasure, Price, CurrentStock, ReorderThreshold, IsActive)
+    VALUES 
+    ('CPU-AMD-5600X', 'AMD Ryzen 5 5600X', 'Procesor 6 nuclee, 12 thread-uri', 1, 'buc', 850.00, 50, 10, 1),
+    ('RAM-COR-16', 'Corsair Vengeance LPX 16GB', 'Memorie 2x8GB DDR4 3200MHz', 1, 'buc', 220.00, 100, 20, 1),
+    ('PER-LOG-G102', 'Logitech G102', 'Mouse gaming, 8000 DPI, negru', 2, 'buc', 115.50, 15, 5, 1),
+    ('NET-TPL-C6', 'TP-Link Archer C6', 'Router Gigabit Wi-Fi AC1200', 3, 'buc', 180.00, 30, 10, 1);
+END
+GO
+
+IF NOT EXISTS (SELECT TOP 1 1 FROM StockMovement)
+BEGIN
+    INSERT INTO StockMovement (ProductId, MovementTypeId, Quantity, ResultingStock, Reason, ReferenceCode, CreatedAt, CreatedByUserId)
+    VALUES 
+    (1, 1, 50, 50, 'Initial warehouse population', 'FACT-001', DATEADD(day, -5, GETDATE()), 1),
+    (2, 1, 100, 100, 'Initial warehouse population', 'FACT-001', DATEADD(day, -5, GETDATE()), 1),
+    (3, 1, 20, 20, 'Initial warehouse population', 'FACT-002', DATEADD(day, -4, GETDATE()), 1),
+    (4, 1, 30, 30, 'Initial warehouse population', 'FACT-003', DATEADD(day, -3, GETDATE()), 1),
+
+    (3, 2, 5, 15, 'Online order sale', 'CMD-1029', DATEADD(day, -1, GETDATE()), 2);
+END
+GO
