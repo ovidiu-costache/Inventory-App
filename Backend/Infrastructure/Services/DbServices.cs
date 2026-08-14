@@ -62,27 +62,17 @@ public class DbServices {
             throw new ArgumentException("Invalid product ID.");
         }
 
-        if (string.IsNullOrWhiteSpace(dto.Code))
-        {
-            throw new ArgumentException("Code is required.");
-        }
-
-        if (string.IsNullOrWhiteSpace(dto.Name))
-        {
-            throw new ArgumentException("Name is required.");
-        }
-
         // SQL sp_UpdateProduct
         var results = await _db.Database.SqlQueryRaw<ProductDto>(
                 "EXEC sp_UpdateProduct @Id, @Code, @Name, @Description, @CategoryId, @UnitOfMeasure, @Price, @ReorderThreshold",
                 new SqlParameter("@Id", id),
-                new SqlParameter("@Code", dto.Code),
-                new SqlParameter("@Name", dto.Name),
+                new SqlParameter("@Code", (object?)dto.Code ?? DBNull.Value),
+                new SqlParameter("@Name", (object?)dto.Name ?? DBNull.Value),
                 new SqlParameter("@Description", (object?)dto.Description ?? DBNull.Value),
-                new SqlParameter("@CategoryId", dto.CategoryId),
-                new SqlParameter("@UnitOfMeasure", dto.UnitOfMeasure),
-                new SqlParameter("@Price", dto.Price),
-                new SqlParameter("@ReorderThreshold", dto.ReorderThreshold))
+                new SqlParameter("@CategoryId", (object?)dto.CategoryId ?? DBNull.Value),
+                new SqlParameter("@UnitOfMeasure", (object?)dto.UnitOfMeasure ?? DBNull.Value),
+                new SqlParameter("@Price", (object?)dto.Price ?? DBNull.Value),
+                new SqlParameter("@ReorderThreshold", (object?)dto.ReorderThreshold ?? DBNull.Value))
             .ToListAsync();
 
         var result = results.FirstOrDefault();
