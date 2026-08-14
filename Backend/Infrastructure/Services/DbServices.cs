@@ -1,3 +1,4 @@
+using System.Data;
 using Application.DTOs;
 using Domain.Entities;
 using Infrastructure.Persistence;
@@ -9,9 +10,21 @@ namespace Infrastructure.Services;
 public class DbServices {
     private readonly AppDbContext _db;
 
-    public DbServices(AppDbContext db)
-    {
+    public DbServices(AppDbContext db) {
         _db = db;
+    }
+    
+    public async Task<(IReadOnlyList<ProductDto> Items, bool HasMore)> GetProductsPageAsync(int? lastId, int pageSize)
+    {
+        var items = await _db.Database.SqlQuery<ProductDto>(
+                $"EXEC sp_GetProductsPage @LastId = {lastId}, @PageSize = {pageSize}")
+            .ToListAsync();
+
+        bool hasMore = items.Count > pageSize;
+        if (items.Count > pageSize) {
+            items.RemoveAt(items.Count - 1);
+        }
+        return (items, hasMore);
     }
 
     public async Task<ProductDto> CreateProductAsync(CreateProductDto dto)
