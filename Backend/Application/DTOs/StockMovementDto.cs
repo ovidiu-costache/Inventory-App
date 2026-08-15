@@ -10,4 +10,4 @@ public sealed record StockMovementDto(
     string? Reason,
     string? ReferenceCode,
     DateTime CreatedAt,
-    string CreatedByUser);
+    string CreatedBy);

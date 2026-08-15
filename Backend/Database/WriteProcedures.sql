@@ -1,7 +1,4 @@
-DROP PROCEDURE IF EXISTS sp_InsertProduct;
-GO
-
-CREATE PROCEDURE sp_InsertProduct
+CREATE OR ALTER PROCEDURE sp_InsertProduct
     @Code NVARCHAR(50),
     @Name NVARCHAR(100),
     @Description NVARCHAR(500),
@@ -62,10 +59,7 @@ BEGIN
 END;
 GO
 
-DROP PROCEDURE IF EXISTS sp_UpdateProduct;
-GO
-
-CREATE PROCEDURE sp_UpdateProduct
+CREATE OR ALTER PROCEDURE sp_UpdateProduct
     @Id INT,
     @Code NVARCHAR(50) = NULL,
     @Name NVARCHAR(100) = NULL,
@@ -129,10 +123,7 @@ BEGIN
 END;
 GO
 
-DROP PROCEDURE IF EXISTS sp_SoftDeleteProduct;
-GO
-
-CREATE PROCEDURE sp_SoftDeleteProduct
+CREATE OR ALTER PROCEDURE sp_SoftDeleteProduct
     @Id INT
 AS
 BEGIN
