@@ -152,3 +152,110 @@ BEGIN
     END CATCH
 END;
 GO
+
+GO
+
+CREATE OR ALTER PROCEDURE sp_InsertStockMovement
+    @ProductId INT,
+    @MovementTypeId INT,
+    @Quantity DECIMAL(18,2),
+    @Reason NVARCHAR(500),
+    @ReferenceCode NVARCHAR(50),
+    @CreatedByUserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    BEGIN TRY
+        -- Basic validation
+        IF @Quantity <= 0
+        BEGIN
+            THROW 50005, 'Quantity must be strictly positive.', 1;
+        END;
+
+        BEGIN TRAN;
+        WAITFOR DELAY '00:00:05';
+
+            DECLARE @CurrentStock DECIMAL(18,2);
+            DECLARE @IsActive BIT;
+
+            -- Pessimistic locking
+            SELECT @CurrentStock = CurrentStock, @IsActive = IsActive
+            FROM Product WITH (UPDLOCK, NOWAIT)
+            WHERE Id = @ProductId;
+
+            IF @CurrentStock IS NULL
+            BEGIN
+                THROW 50001, 'Product not found.', 1;
+            END;
+
+            IF @IsActive = 0
+            BEGIN
+                THROW 50006, 'Cannot add stock movements to an inactive product.', 1;
+            END;
+
+            DECLARE @NewStock DECIMAL(18,2);
+
+            -- 1 = IN; 2 = OUT; 3 = ADJUSTMENT; 4 = TRANSFER;
+            IF @MovementTypeId = 1
+            BEGIN
+                SET @NewStock = @CurrentStock + @Quantity;
+            END
+            ELSE IF @MovementTypeId = 2 OR @MovementTypeId = 4
+            BEGIN
+                IF @CurrentStock < @Quantity
+                BEGIN
+                    THROW 50004, 'Insufficient stock available.', 1;
+                END;
+
+                SET @NewStock = @CurrentStock - @Quantity;
+            END
+            ELSE IF @MovementTypeId = 3
+            BEGIN
+                SET @NewStock = @Quantity;
+            END
+            ELSE
+            BEGIN
+                THROW 50007, 'Invalid movement type.', 1;
+            END;
+
+            INSERT INTO StockMovement (ProductId, MovementTypeId, Quantity, ResultingStock, Reason, ReferenceCode, CreatedAt, CreatedByUserId)
+            VALUES (@ProductId, @MovementTypeId, @Quantity, @NewStock, @Reason, @ReferenceCode, GETUTCDATE(), @CreatedByUserId);
+
+            DECLARE @NewMovementId INT = SCOPE_IDENTITY();
+
+            UPDATE Product
+            SET CurrentStock = @NewStock
+            WHERE Id = @ProductId;
+
+        COMMIT TRAN;
+
+        SELECT
+            s.Id,
+            p.Code AS ProductCode,
+            p.Name AS ProductName,
+            m.Name AS MovementType,
+            s.Quantity,
+            s.ResultingStock,
+            s.Reason,
+            s.ReferenceCode,
+            s.CreatedAt,
+            u.Username AS CreatedBy 
+        FROM StockMovement s
+        JOIN Product p ON p.Id = s.ProductId
+        JOIN MovementType m ON m.Id = s.MovementTypeId
+        JOIN AppUser u ON u.Id = s.CreatedByUserId
+        WHERE s.Id = @NewMovementId;
+
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+        BEGIN
+            ROLLBACK TRAN;
+        END;
+
+        THROW;
+    END CATCH;
+END;
+GO

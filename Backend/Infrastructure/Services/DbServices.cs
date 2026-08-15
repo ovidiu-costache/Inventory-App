@@ -142,4 +142,38 @@ public class DbServices {
             "EXEC sp_SoftDeleteProduct @Id",
             new SqlParameter("@Id", id));
     }
+
+    public async Task<StockMovementDto> CreateStockMovementAsync(CreateStockMovementDto dto)
+    {
+        // Basic validation
+        if (dto.ProductId <= 0)
+        {
+            throw new ArgumentException("Invalid product ID.");
+        }
+
+        if (dto.Quantity <= 0)
+        {
+            throw new ArgumentException("Quantity must be greater than zero.");
+        }
+
+        // SQL sp_InsertStockMovement
+        var results = await _db.Database.SqlQueryRaw<StockMovementDto>(
+                "EXEC sp_InsertStockMovement @ProductId, @MovementTypeId, @Quantity, @Reason, @ReferenceCode, @CreatedByUserId",
+                new SqlParameter("@ProductId", dto.ProductId),
+                new SqlParameter("@MovementTypeId", (int)dto.MovementTypeId),
+                new SqlParameter("@Quantity", dto.Quantity),
+                new SqlParameter("@Reason", (object?)dto.Reason ?? DBNull.Value),
+                new SqlParameter("@ReferenceCode", (object?)dto.ReferenceCode ?? DBNull.Value),
+                new SqlParameter("@CreatedByUserId", dto.CreatedByUserId))
+            .ToListAsync();
+
+        var result = results.FirstOrDefault();
+
+        if (result == null)
+        {
+            throw new Exception("Failed to register stock movement.");
+        }
+
+        return result;
+    }
 }
