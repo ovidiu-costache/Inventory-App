@@ -30,7 +30,7 @@ BEGIN
     
     IF @Id IS NULL OR NOT EXISTS (SELECT 1 FROM Product WHERE Id = @Id AND IsActive = 1)
     BEGIN
-        THROW 50001, 'Product not found.', 1;
+        ;THROW 50001, 'Product not found.', 1;
     END
 
     SELECT
@@ -84,7 +84,7 @@ BEGIN
     
     IF @ProductId IS NULL OR NOT EXISTS (SELECT 1 FROM Product WHERE Id = @ProductId)
     BEGIN
-        THROW 50001, 'Product not found.', 1;
+        ;THROW 50001, 'Product not found.', 1;
     END
 
     SELECT
@@ -134,7 +134,7 @@ BEGIN
 
     IF @ProductId IS NULL OR NOT EXISTS (SELECT 1 FROM Product WHERE Id = @ProductId)
     BEGIN
-        THROW 50001, 'Product not found.', 1;
+        ;THROW 50001, 'Product not found.', 1;
     END
 
     SELECT
