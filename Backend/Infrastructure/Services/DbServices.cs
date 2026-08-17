@@ -11,12 +11,25 @@ public class DbServices {
     public DbServices(AppDbContext db) {
         _db = db;
     }
-    
-    public async Task<(IReadOnlyList<ProductDto>, bool)> GetProductsPageAsync(int? lastId, int pageSize)
+
+    public async Task<(IReadOnlyList<ProductDto>, bool)> GetProductsPageAsync(
+        int page, int pageSize, int? categoryId, string? stockState, decimal? minPrice, decimal? maxPrice,
+        string? search, string sortBy, string sortDir)
     {
         // SQL sp_GetProductsPage
-        var items = await _db.Database.SqlQuery<ProductDto>(
-                $"EXEC sp_GetProductsPage @LastId = {lastId}, @PageSize = {pageSize}")
+        var items = await _db.Database.SqlQueryRaw<ProductDto>(
+                @"EXEC sp_GetProductsPage
+                    @Page, @PageSize, @CategoryId, @StockState,
+                    @MinPrice, @MaxPrice, @Search, @SortBy, @SortDir",
+                new SqlParameter("@Page", page),
+                new SqlParameter("@PageSize", pageSize),
+                new SqlParameter("@CategoryId", (object?)categoryId ?? DBNull.Value),
+                new SqlParameter("@StockState", (object?)stockState ?? DBNull.Value),
+                new SqlParameter("@MinPrice", (object?)minPrice ?? DBNull.Value),
+                new SqlParameter("@MaxPrice", (object?)maxPrice ?? DBNull.Value),
+                new SqlParameter("@Search", (object?)search ?? DBNull.Value),
+                new SqlParameter("@SortBy", (object?)sortBy ?? DBNull.Value),
+                new SqlParameter("@SortDir", sortDir))
             .ToListAsync();
 
         bool hasMore = items.Count > pageSize;
@@ -25,7 +38,7 @@ public class DbServices {
         }
         return (items, hasMore);
     }
-    
+
     public async Task<ProductDto?> GetProductAsync(int id)
     {
         // SQL sp_GetProduct
@@ -35,12 +48,25 @@ public class DbServices {
 
         return results.FirstOrDefault();
     }
-    
-    public async Task<(IReadOnlyList<StockMovementDto>, bool)> GetMovementsPageAsync(int? lastId, int pageSize)
+
+    public async Task<(IReadOnlyList<StockMovementDto>, bool)> GetMovementsPageAsync(
+        int page, int pageSize, int? productId, string? movementType, DateTime? fromDate, DateTime? toDate,
+        int? createdByUserId, string? createdBy, string sortBy, string sortDir)
     {
         // SQL sp_GetMovementsPage
-        var items = await _db.Database.SqlQuery<StockMovementDto>(
-                $"EXEC sp_GetMovementsPage @LastId = {lastId}, @PageSize = {pageSize}")
+        var items = await _db.Database.SqlQueryRaw<StockMovementDto>(
+                @"EXEC sp_GetMovementsPage
+                    @Page, @PageSize, @ProductId, @MovementType, @FromDate, @ToDate,
+                    @CreatedByUserId, @SortBy, @SortDir",
+                new SqlParameter("@Page", page),
+                new SqlParameter("@PageSize", pageSize),
+                new SqlParameter("@ProductId", (object?)productId ?? DBNull.Value),
+                new SqlParameter("@MovementType", (object?)movementType ?? DBNull.Value),
+                new SqlParameter("@FromDate", (object?)fromDate ?? DBNull.Value),
+                new SqlParameter("@ToDate", (object?)toDate ?? DBNull.Value),
+                new SqlParameter("@CreatedByUserId", (object?)createdByUserId ?? DBNull.Value),
+                new SqlParameter("@SortBy", sortBy),
+                new SqlParameter("@SortDir", sortDir))
             .ToListAsync();
 
         bool hasMore = items.Count > pageSize;
@@ -49,7 +75,7 @@ public class DbServices {
         }
         return (items, hasMore);
     }
-    
+
     public async Task<IReadOnlyList<StockMovementDto>> GetMovementsForProductAsync(int productId)
     {
         // SQL sp_GetMovementsForProduct
@@ -57,7 +83,7 @@ public class DbServices {
                 $"EXEC sp_GetMovementsForProduct @ProductId = {productId}")
             .ToListAsync();
     }
-    
+
     public async Task<IReadOnlyList<LowStockNotificationDto>> GetNotificationsAsync()
     {
         // SQL sp_GetNotifications
@@ -65,7 +91,7 @@ public class DbServices {
                 $"EXEC sp_GetNotifications")
             .ToListAsync();
     }
-    
+
     public async Task<IReadOnlyList<LowStockNotificationDto>> GetNotificationsForProductAsync(int productId)
     {
         // SQL sp_GetNotificationsForProduct
