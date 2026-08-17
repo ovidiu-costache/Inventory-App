@@ -1,7 +1,8 @@
 using Application.DTOs;
 using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Infrastructure.Services;
 
@@ -175,5 +176,19 @@ public class DbServices {
         }
 
         return result;
+    }
+
+    public async Task ResolveNotificationAsync(int id)
+    {
+        // Basic validation
+        if (id <= 0)
+        {
+            throw new ArgumentException("Invalid notification ID.");
+        }
+
+        // SQL sp_ResolveNotification
+        await _db.Database.ExecuteSqlRawAsync(
+            "EXEC sp_ResolveNotification @Id",
+            new SqlParameter("@Id", id));
     }
 }

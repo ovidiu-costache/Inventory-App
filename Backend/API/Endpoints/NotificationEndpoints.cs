@@ -1,4 +1,6 @@
-﻿namespace API.Endpoints
+﻿using Infrastructure.Services;
+
+namespace API.Endpoints
 {
     public static class NotificationEndpoints
     {
@@ -6,7 +8,12 @@
         {
             // TO DO: GET /api/notifications
 
-            // TO DO: PATCH /api/notifications/{id}/resolve
+            // PATCH /api/notifications/{id}/resolve
+            group.MapPatch("/{id:int}/resolve", async (int id, DbServices dbServices) =>
+            {
+                await dbServices.ResolveNotificationAsync(id);
+                return Results.NoContent();
+            });
 
             return group;
         }

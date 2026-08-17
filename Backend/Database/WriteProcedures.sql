@@ -171,63 +171,63 @@ BEGIN
         -- Basic validation
         IF @Quantity <= 0
         BEGIN
-            THROW 50005, 'Quantity must be strictly positive.', 1;
+            ;THROW 50005, 'Quantity must be strictly positive.', 1;
         END;
 
         BEGIN TRAN;
         WAITFOR DELAY '00:00:05';
 
-            DECLARE @CurrentStock DECIMAL(18,2);
-            DECLARE @IsActive BIT;
+        DECLARE @CurrentStock DECIMAL(18,2);
+        DECLARE @IsActive BIT;
 
-            -- Pessimistic locking
-            SELECT @CurrentStock = CurrentStock, @IsActive = IsActive
-            FROM Product WITH (UPDLOCK, NOWAIT)
-            WHERE Id = @ProductId;
+        -- Pessimistic locking
+        SELECT @CurrentStock = CurrentStock, @IsActive = IsActive
+        FROM Product WITH (UPDLOCK, NOWAIT)
+        WHERE Id = @ProductId;
 
-            IF @CurrentStock IS NULL
+        IF @CurrentStock IS NULL
+        BEGIN
+            ;THROW 50001, 'Product not found.', 1;
+        END;
+
+        IF @IsActive = 0
+        BEGIN
+            ;THROW 50006, 'Cannot add stock movements to an inactive product.', 1;
+        END;
+
+        DECLARE @NewStock DECIMAL(18,2);
+
+        -- 1 = IN; 2 = OUT; 3 = ADJUSTMENT; 4 = TRANSFER;
+        IF @MovementTypeId = 1
+        BEGIN
+            SET @NewStock = @CurrentStock + @Quantity;
+        END
+        ELSE IF @MovementTypeId = 2 OR @MovementTypeId = 4
+        BEGIN
+            IF @CurrentStock < @Quantity
             BEGIN
-                THROW 50001, 'Product not found.', 1;
+                ;THROW 50004, 'Insufficient stock available.', 1;
             END;
 
-            IF @IsActive = 0
-            BEGIN
-                THROW 50006, 'Cannot add stock movements to an inactive product.', 1;
-            END;
+            SET @NewStock = @CurrentStock - @Quantity;
+        END
+        ELSE IF @MovementTypeId = 3
+        BEGIN
+            SET @NewStock = @Quantity;
+        END
+        ELSE
+        BEGIN
+            ;THROW 50007, 'Invalid movement type.', 1;
+        END;
 
-            DECLARE @NewStock DECIMAL(18,2);
+        INSERT INTO StockMovement (ProductId, MovementTypeId, Quantity, ResultingStock, Reason, ReferenceCode, CreatedAt, CreatedByUserId)
+        VALUES (@ProductId, @MovementTypeId, @Quantity, @NewStock, @Reason, @ReferenceCode, GETUTCDATE(), @CreatedByUserId);
 
-            -- 1 = IN; 2 = OUT; 3 = ADJUSTMENT; 4 = TRANSFER;
-            IF @MovementTypeId = 1
-            BEGIN
-                SET @NewStock = @CurrentStock + @Quantity;
-            END
-            ELSE IF @MovementTypeId = 2 OR @MovementTypeId = 4
-            BEGIN
-                IF @CurrentStock < @Quantity
-                BEGIN
-                    THROW 50004, 'Insufficient stock available.', 1;
-                END;
+        DECLARE @NewMovementId INT = SCOPE_IDENTITY();
 
-                SET @NewStock = @CurrentStock - @Quantity;
-            END
-            ELSE IF @MovementTypeId = 3
-            BEGIN
-                SET @NewStock = @Quantity;
-            END
-            ELSE
-            BEGIN
-                THROW 50007, 'Invalid movement type.', 1;
-            END;
-
-            INSERT INTO StockMovement (ProductId, MovementTypeId, Quantity, ResultingStock, Reason, ReferenceCode, CreatedAt, CreatedByUserId)
-            VALUES (@ProductId, @MovementTypeId, @Quantity, @NewStock, @Reason, @ReferenceCode, GETUTCDATE(), @CreatedByUserId);
-
-            DECLARE @NewMovementId INT = SCOPE_IDENTITY();
-
-            UPDATE Product
-            SET CurrentStock = @NewStock
-            WHERE Id = @ProductId;
+        UPDATE Product
+        SET CurrentStock = @NewStock
+        WHERE Id = @ProductId;
 
         COMMIT TRAN;
 
@@ -255,7 +255,25 @@ BEGIN
             ROLLBACK TRAN;
         END;
 
-        THROW;
+        ;THROW;
     END CATCH;
 END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_ResolveNotification
+    @Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM LowStockNotification WHERE Id = @Id)
+    BEGIN
+        ;THROW 50001, 'The requested notification could not be found.', 1;
+    END;
+
+    UPDATE LowStockNotification
+    SET IsResolved = 1,
+        ResolvedAt = GETUTCDATE()
+    WHERE Id = @Id;
+END
 GO
