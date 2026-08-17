@@ -175,13 +175,16 @@ BEGIN
         END;
 
         BEGIN TRAN;
-        WAITFOR DELAY '00:00:05';
 
         DECLARE @CurrentStock DECIMAL(18,2);
         DECLARE @IsActive BIT;
+        DECLARE @ReorderThreshold DECIMAL(18,2);
 
-        -- Pessimistic locking
-        SELECT @CurrentStock = CurrentStock, @IsActive = IsActive
+        -- Pessimistic locking (includes ReorderThreshold)
+        SELECT 
+            @CurrentStock = CurrentStock, 
+            @IsActive = IsActive,
+            @ReorderThreshold = ReorderThreshold
         FROM Product WITH (UPDLOCK, NOWAIT)
         WHERE Id = @ProductId;
 
@@ -220,14 +223,26 @@ BEGIN
             ;THROW 50007, 'Invalid movement type.', 1;
         END;
 
+        -- Insert the stock movement
         INSERT INTO StockMovement (ProductId, MovementTypeId, Quantity, ResultingStock, Reason, ReferenceCode, CreatedAt, CreatedByUserId)
         VALUES (@ProductId, @MovementTypeId, @Quantity, @NewStock, @Reason, @ReferenceCode, GETUTCDATE(), @CreatedByUserId);
 
         DECLARE @NewMovementId INT = SCOPE_IDENTITY();
 
+        -- Update the current stock
         UPDATE Product
         SET CurrentStock = @NewStock
         WHERE Id = @ProductId;
+
+        -- Background notification for low stock (Deduplicated)
+        IF @NewStock < @ReorderThreshold
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM LowStockNotification WHERE ProductId = @ProductId AND IsResolved = 0)
+            BEGIN
+                INSERT INTO LowStockNotification (ProductId, TriggeredAt, IsResolved)
+                VALUES (@ProductId, GETUTCDATE(), 0);
+            END;
+        END;
 
         COMMIT TRAN;
 
