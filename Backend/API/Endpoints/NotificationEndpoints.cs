@@ -6,7 +6,19 @@ namespace API.Endpoints
     {
         public static RouteGroupBuilder MapNotificationEndpoints(this RouteGroupBuilder group)
         {
-            // TO DO: GET /api/notifications
+            // GET /api/notifications
+            group.MapGet("/", async (DbServices dbServices) =>
+            {
+                var notifications = await dbServices.GetNotificationsAsync();
+                return Results.Ok(notifications);
+            });
+            
+            // GET /api/notifications/{productId}
+            group.MapGet("/{productId:int}", async (int productId, DbServices dbServices) =>
+            {
+                var notifications = await dbServices.GetNotificationsForProductAsync(productId);
+                return Results.Ok(notifications);
+            });
 
             // PATCH /api/notifications/{id}/resolve
             group.MapPatch("/{id:int}/resolve", async (int id, DbServices dbServices) =>

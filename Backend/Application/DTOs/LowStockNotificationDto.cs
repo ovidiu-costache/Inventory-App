@@ -6,6 +6,4 @@ public sealed record LowStockNotificationDto(
     string ProductName,
     decimal CurrentStock,
     decimal ReorderThreshold,
-    DateTime TriggeredAt,
-    bool IsResolved,
-    DateTime? ResolvedAt);
+    DateTime TriggeredAt);

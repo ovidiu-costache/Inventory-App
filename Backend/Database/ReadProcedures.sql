@@ -105,3 +105,48 @@ BEGIN
     WHERE s.ProductId = @ProductId
     ORDER BY s.CreatedAt DESC;
 END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_GetNotifications
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        n.Id,
+        p.Code AS ProductCode,
+        p.Name AS ProductName,
+        p.CurrentStock,
+        p.ReorderThreshold,
+        n.TriggeredAt
+    FROM LowStockNotification n
+        JOIN Product p ON p.Id = n.ProductId
+    WHERE n.IsResolved = 0
+    ORDER BY n.TriggeredAt DESC;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_GetNotificationsForProduct
+    @ProductId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @ProductId IS NULL OR NOT EXISTS (SELECT 1 FROM Product WHERE Id = @ProductId)
+    BEGIN
+        THROW 50001, 'Product not found.', 1;
+    END
+
+    SELECT
+        n.Id,
+        p.Code AS ProductCode,
+        p.Name AS ProductName,
+        p.CurrentStock,
+        p.ReorderThreshold,
+        n.TriggeredAt
+    FROM LowStockNotification n
+        JOIN Product p ON p.Id = n.ProductId
+    WHERE n.ProductId = @ProductId
+        AND n.IsResolved = 0
+    ORDER BY n.TriggeredAt DESC;
+END;

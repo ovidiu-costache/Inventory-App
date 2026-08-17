@@ -171,7 +171,12 @@ BEGIN
         -- Basic validation
         IF @Quantity <= 0
         BEGIN
-            ;THROW 50005, 'Quantity must be strictly positive.', 1;
+            ;THROW 50002, 'Quantity must be strictly positive.', 1;
+        END;
+        
+        IF @CreatedByUserId NOT IN (SELECT Id FROM AppUser)
+        BEGIN
+            ;THROW 50002, 'User ID does not exist.', 1;
         END;
 
         BEGIN TRAN;
@@ -195,7 +200,7 @@ BEGIN
 
         IF @IsActive = 0
         BEGIN
-            ;THROW 50006, 'Cannot add stock movements to an inactive product.', 1;
+            ;THROW 50002, 'Cannot add stock movements to an inactive product.', 1;
         END;
 
         DECLARE @NewStock DECIMAL(18,2);
@@ -209,7 +214,7 @@ BEGIN
         BEGIN
             IF @CurrentStock < @Quantity
             BEGIN
-                ;THROW 50004, 'Insufficient stock available.', 1;
+                ;THROW 50002, 'Insufficient stock available.', 1;
             END;
 
             SET @NewStock = @CurrentStock - @Quantity;
@@ -220,7 +225,7 @@ BEGIN
         END
         ELSE
         BEGIN
-            ;THROW 50007, 'Invalid movement type.', 1;
+            ;THROW 50002, 'Invalid movement type.', 1;
         END;
 
         -- Insert the stock movement
@@ -242,6 +247,13 @@ BEGIN
                 INSERT INTO LowStockNotification (ProductId, TriggeredAt, IsResolved)
                 VALUES (@ProductId, GETUTCDATE(), 0);
             END;
+        END
+        ELSE IF @NewStock >= @ReorderThreshold
+        BEGIN
+            UPDATE LowStockNotification
+            SET IsResolved = 1,
+                ResolvedAt = GETUTCDATE()
+            WHERE ProductId = @ProductId AND IsResolved = 0;
         END;
 
         COMMIT TRAN;

@@ -2,7 +2,6 @@ using Application.DTOs;
 using Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 namespace Infrastructure.Services;
 
@@ -56,6 +55,22 @@ public class DbServices {
         // SQL sp_GetMovementsForProduct
         return await _db.Database.SqlQuery<StockMovementDto>(
                 $"EXEC sp_GetMovementsForProduct @ProductId = {productId}")
+            .ToListAsync();
+    }
+    
+    public async Task<IReadOnlyList<LowStockNotificationDto>> GetNotificationsAsync()
+    {
+        // SQL sp_GetNotifications
+        return await _db.Database.SqlQuery<LowStockNotificationDto>(
+                $"EXEC sp_GetNotifications")
+            .ToListAsync();
+    }
+    
+    public async Task<IReadOnlyList<LowStockNotificationDto>> GetNotificationsForProductAsync(int productId)
+    {
+        // SQL sp_GetNotificationsForProduct
+        return await _db.Database.SqlQuery<LowStockNotificationDto>(
+                $"EXEC sp_GetNotificationsForProduct @ProductId = {productId}")
             .ToListAsync();
     }
 
