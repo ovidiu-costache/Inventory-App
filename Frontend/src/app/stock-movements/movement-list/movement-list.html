@@ -1,0 +1,76 @@
+<div>
+  <h2>Istoric Miscari Stoc</h2>
+
+  <!-- Connection error -->
+  <div *ngIf="loadError" style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+    Nu se poate conecta la server. Verifica ca backend-ul ruleaza.
+    <button (click)="loadMovements()" style="margin-left: 10px;">Reincearca</button>
+  </div>
+
+  <!-- Filters -->
+  <div style="margin-bottom: 10px;">
+    <label>Tip miscare: </label>
+    <select [(ngModel)]="filterType" style="margin-right: 10px;">
+      <option value="">Toate</option>
+      <option value="INTRARE">Intrare</option>
+      <option value="IESIRE">Iesire</option>
+      <option value="AJUSTARE">Ajustare</option>
+    </select>
+
+    <label>ID Produs: </label>
+    <input type="number" [(ngModel)]="filterProductId" style="width: 60px; margin-right: 10px;">
+
+    <label>ID Utilizator: </label>
+    <input type="number" [(ngModel)]="filterUserId" style="width: 60px; margin-right: 10px;">
+
+    <label>De la: </label>
+    <input type="date" [(ngModel)]="filterFromDate" style="margin-right: 10px;">
+
+    <label>Pana la: </label>
+    <input type="date" [(ngModel)]="filterToDate" style="margin-right: 10px;">
+
+    <button (click)="applyFilters()">Filtreaza</button>
+    <button (click)="clearFilters()" style="margin-left: 5px;">Reseteaza</button>
+  </div>
+
+  <button routerLink="/movements/new" style="padding: 10px 15px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+    + Adauga miscare noua
+  </button>
+  <br><br>
+
+  <table border="1" cellspacing="0" cellpadding="5" width="100%">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cod Produs</th>
+        <th>Nume Produs</th>
+        <th>Tip</th>
+        <th>Cantitate</th>
+        <th>Stoc Rezultat</th>
+        <th>Data</th>
+        <th>Utilizator</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of movements">
+        <td>{{ m.id }}</td>
+        <td><strong>{{ m.productCode }}</strong></td>
+        <td>{{ m.productName }}</td>
+        <td>{{ m.movementType }}</td>
+        <td>{{ m.quantity }}</td>
+        <td>{{ m.resultingStock }}</td>
+        <td>{{ m.createdAt | date:'short' }}</td>
+        <td>{{ m.createdBy }}</td>
+      </tr>
+      <tr *ngIf="movements.length === 0 && !loadError">
+        <td colspan="8">Nu exista miscari de stoc inregistrate.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <br>
+
+  <button (click)="prevPage()" [disabled]="page === 1">Inapoi</button>
+  <span> Pagina {{ page }} </span>
+  <button (click)="nextPage()" [disabled]="!hasMore">Inainte</button>
+</div>
