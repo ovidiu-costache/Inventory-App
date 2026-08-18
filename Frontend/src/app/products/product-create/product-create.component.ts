@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ProductsService } from '../products.service';
+import { ProductsService } from '../../services/products.service';
 import { CategoriesService } from '../../services/categories.service';
 import { CreateProductDto } from '../dtos/create-product.dto';
 import { Category } from '../../models/category.model';

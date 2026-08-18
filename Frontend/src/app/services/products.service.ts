@@ -3,8 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GetItemsPage } from '../models/get-items-page.model';
 import { Product } from '../models/product.model';
-import { CreateProductDto } from './dtos/create-product.dto';
-import { UpdateProductDto } from './dtos/update-product.dto';
+import { CreateProductDto } from '../products/dtos/create-product.dto';
+import { UpdateProductDto } from '../products/dtos/update-product.dto';
 
 
 @Injectable({

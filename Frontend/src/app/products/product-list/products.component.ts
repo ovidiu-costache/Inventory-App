@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { ProductsService } from '../products.service';
+import { ProductsService } from '../../services/products.service';
 import { Product } from '../../models/product.model';
 import { SortByEnum } from '../enums/sort-by.enum';
 import { SortDirEnum } from '../enums/sort-dir.enum';
