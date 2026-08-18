@@ -1,5 +1,6 @@
 export interface GetItemsPage<T> {
   items: T[];
-  lastId: number | null;
+  page: number;
+  pageSize: number;
   hasMore: boolean;
 }
