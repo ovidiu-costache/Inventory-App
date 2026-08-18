@@ -12,6 +12,10 @@ public class DbServices {
         _db = db;
     }
 
+    public async Task<IReadOnlyList<Domain.Entities.Category>> GetCategoriesAsync() {
+        return await _db.Categories.OrderBy(c => c.Name).ToListAsync();
+    }
+
     public async Task<(IReadOnlyList<ProductDto>, bool)> GetProductsPageAsync(
         int page, int pageSize, int? categoryId, string? stockState, decimal? minPrice, decimal? maxPrice,
         string? search, string? sortBy, string sortDir)

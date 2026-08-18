@@ -47,23 +47,23 @@
                 <th style="cursor: pointer; color: blue;" (click)="toggleSort('NAME')">
                     Nume
                     @if (currentSortBy === 'NAME') {
-                    <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                    <span style="float: right;">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th>Categorie</th>
-                <th>UM</th>
                 <th style="cursor: pointer; color: blue;" (click)="toggleSort('PRICE')">
                     Pret
                     @if (currentSortBy === 'PRICE') {
-                    <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                    <span style="float: right;">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
                     }
                 </th>
                 <th style="cursor: pointer; color: blue;" (click)="toggleSort('STOCK')">
                     Stoc
                     @if (currentSortBy === 'STOCK') {
-                    <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                    <span style="float: right;">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
                     }
                 </th>
+                <th>Categorie</th>
+                <th>UM</th>
                 <th>Prag reaprovizionare</th>
                 <th>Activ</th>
             </tr>
@@ -72,12 +72,14 @@
             @for (p of products; track p.id) {
             <tr>
                 <td>{{ p.id }}</td>
-                <td><strong>{{ p.code }}</strong></td>
+                <td><a [routerLink]="['/products', p.id]" style="color: blue; cursor: pointer;">
+                        <strong>{{ p.code}}</strong>
+                    </a></td>
                 <td>{{ p.name }}</td>
-                <td>{{ p.category }}</td>
-                <td>{{ p.unitOfMeasure }}</td>
                 <td>{{ p.price | number:'1.2-2' }}</td>
                 <td>{{ p.currentStock }}</td>
+                <td>{{ p.category }}</td>
+                <td>{{ p.unitOfMeasure }}</td>
                 <td>{{ p.reorderThreshold }}</td>
                 <td>{{ p.isActive ? 'Da' : 'Nu' }}</td>
             </tr>

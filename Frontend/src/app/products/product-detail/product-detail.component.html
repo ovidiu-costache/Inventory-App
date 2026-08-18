@@ -1,0 +1,173 @@
+<div>
+    <!-- Loading error -->
+    @if (loadError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        Nu s-a putut incarca produsul. Verifica ca backend-ul ruleaza.
+        <button (click)="loadProduct()" style="margin-left: 10px;">Reincearca</button>
+    </div>
+    }
+
+    @if (product) {
+    <h2>{{ product.name }}</h2>
+
+    <!-- Save / Delete errors -->
+    @if (saveError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        {{ saveError }}
+    </div>
+    }
+    @if (deleteError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        {{ deleteError }}
+    </div>
+    }
+
+    <!-- VIEW MODE -->
+    @if (!isEditing) {
+    <table cellpadding="6">
+        <tr>
+            <td><strong>ID</strong></td>
+            <td>{{ product.id }}</td>
+        </tr>
+        <tr>
+            <td><strong>Cod</strong></td>
+            <td>{{ product.code }}</td>
+        </tr>
+        <tr>
+            <td><strong>Nume</strong></td>
+            <td>{{ product.name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Descriere</strong></td>
+            <td>{{ product.description || '-' }}</td>
+        </tr>
+        <tr>
+            <td><strong>Categorie</strong></td>
+            <td>{{ product.category }}</td>
+        </tr>
+        <tr>
+            <td><strong>Unitate de masura</strong></td>
+            <td>{{ product.unitOfMeasure }}</td>
+        </tr>
+        <tr>
+            <td><strong>Pret</strong></td>
+            <td>{{ product.price | number:'1.2-2' }}</td>
+        </tr>
+        <tr>
+            <td><strong>Stoc curent</strong></td>
+            <td>{{ product.currentStock }}</td>
+        </tr>
+        <tr>
+            <td><strong>Prag reaprovizionare</strong></td>
+            <td>{{ product.reorderThreshold }}</td>
+        </tr>
+        <tr>
+            <td><strong>Activ</strong></td>
+            <td>{{ product.isActive ? 'Da' : 'Nu' }}</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <button (click)="toggleEdit()"
+        style="padding: 10px 20px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        Editeaza
+    </button>
+
+    <button (click)="confirmDelete()" [disabled]="isDeleting"
+        style="padding: 10px 20px; margin-left: 10px; font-weight: bold; cursor: pointer; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        @if (isDeleting) {
+        Se sterge...
+        } @else {
+        Sterge
+        }
+    </button>
+
+    <button (click)="goBack()"
+        style="padding: 10px 20px; margin-left: 10px; cursor: pointer; background-color: #8e97a0; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        Inapoi la lista
+    </button>
+    }
+
+    <!-- EDIT MODE -->
+    @if (isEditing) {
+    <form (ngSubmit)="saveChanges()">
+        <table cellpadding="6">
+            <tr>
+                <td><label for="editCode">Cod</label></td>
+                <td>
+                    <input id="editCode" type="text" [(ngModel)]="editData.code" name="code" style="width: 250px;">
+                </td>
+            </tr>
+            <tr>
+                <td><label for="editName">Nume</label></td>
+                <td>
+                    <input id="editName" type="text" [(ngModel)]="editData.name" name="name" style="width: 250px;">
+                </td>
+            </tr>
+            <tr>
+                <td><label for="editDescription">Descriere</label></td>
+                <td>
+                    <textarea id="editDescription" [(ngModel)]="editData.description" name="description"
+                        style="width: 250px; height: 60px;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="editCategoryId">Categorie</label></td>
+                <td>
+                    <select id="editCategoryId" [(ngModel)]="editData.categoryId" name="categoryId"
+                        style="width: 250px;">
+                        @for (cat of categories; track cat.id) {
+                            <option [value]="cat.id">{{ cat.name }}</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="editUnitOfMeasure">Unitate de masura</label></td>
+                <td>
+                    <input id="editUnitOfMeasure" type="text" [(ngModel)]="editData.unitOfMeasure" name="unitOfMeasure"
+                        style="width: 150px;">
+                </td>
+            </tr>
+            <tr>
+                <td><label for="editPrice">Pret</label></td>
+                <td>
+                    <input id="editPrice" type="number" [(ngModel)]="editData.price" name="price" min="0" step="0.01"
+                        style="width: 120px;">
+                </td>
+            </tr>
+            <tr>
+                <td><label for="editReorderThreshold">Prag reaprovizionare</label></td>
+                <td>
+                    <input id="editReorderThreshold" type="number" [(ngModel)]="editData.reorderThreshold"
+                        name="reorderThreshold" min="0" style="width: 120px;">
+                </td>
+            </tr>
+            <tr>
+                <td><label for="editIsActive">Activ</label></td>
+                <td>
+                    <input id="editIsActive" type="checkbox" [(ngModel)]="editData.isActive" name="isActive">
+                </td>
+            </tr>
+        </table>
+
+        <br>
+
+        <button type="submit" [disabled]="isSaving"
+            style="padding: 10px 20px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+            @if (isSaving) {
+            Se salveaza...
+            } @else {
+            Salveaza
+            }
+        </button>
+
+        <button type="button" (click)="toggleEdit()" [disabled]="isSaving"
+            style="padding: 10px 20px; margin-left: 10px; cursor: pointer; background-color: #8e97a0; color: white; border: none; border-radius: 4px; font-size: 14px;">
+            Anuleaza
+        </button>
+    </form>
+    }
+    }
+</div>

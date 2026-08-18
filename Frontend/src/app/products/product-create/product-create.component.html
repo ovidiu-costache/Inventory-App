@@ -1,0 +1,84 @@
+<div>
+    <h2>Adauga Produs Nou</h2>
+
+    <!-- Error message -->
+    @if (submitError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        {{ submitError }}
+    </div>
+    }
+
+    <form (ngSubmit)="onSubmit()">
+        <table cellpadding="6">
+            <tr>
+                <td><label for="code">Cod produs *</label></td>
+                <td>
+                    <input id="code" type="text" [(ngModel)]="formData.code" name="code" placeholder="ex: PROD-001"
+                        style="width: 250px;" required>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="name">Nume *</label></td>
+                <td>
+                    <input id="name" type="text" [(ngModel)]="formData.name" name="name" placeholder="Numele produsului"
+                        style="width: 250px;" required>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="description">Descriere</label></td>
+                <td>
+                    <textarea id="description" [(ngModel)]="formData.description" name="description"
+                        placeholder="Descriere optionala" style="width: 250px; height: 60px;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="categoryId">Categorie *</label></td>
+                <td>
+                    <select id="categoryId" [(ngModel)]="formData.categoryId" name="categoryId"
+                        style="width: 250px;" required>
+                        @for (cat of categories; track cat.id) {
+                            <option [value]="cat.id">{{ cat.name }}</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="unitOfMeasure">Unitate de masura *</label></td>
+                <td>
+                    <input id="unitOfMeasure" type="text" [(ngModel)]="formData.unitOfMeasure" name="unitOfMeasure"
+                        placeholder="ex: buc, kg, l" style="width: 150px;" required>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="price">Pret *</label></td>
+                <td>
+                    <input id="price" type="number" [(ngModel)]="formData.price" name="price" min="0" step="0.01"
+                        style="width: 120px;" required>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="reorderThreshold">Prag reaprovizionare *</label></td>
+                <td>
+                    <input id="reorderThreshold" type="number" [(ngModel)]="formData.reorderThreshold"
+                        name="reorderThreshold" min="0" style="width: 120px;" required>
+                </td>
+            </tr>
+        </table>
+
+        <br>
+
+        <button type="submit" [disabled]="isSubmitting"
+            style="padding: 10px 20px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+            @if (isSubmitting) {
+            Se salveaza...
+            } @else {
+            Salveaza
+            }
+        </button>
+
+        <button type="button" (click)="goBack()" [disabled]="isSubmitting"
+            style="padding: 10px 20px; margin-left: 10px; cursor: pointer; background-color: #8e97a0; color: white; border: none; border-radius: 4px; font-size: 14px;">
+            Anuleaza
+        </button>
+    </form>
+</div>

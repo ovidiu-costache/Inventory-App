@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { GetItemsPage } from '../models/get-items-page.model';
 import { Product } from '../models/product.model';
 import { CreateProductDto } from './dtos/create-product.dto';
+import { UpdateProductDto } from './dtos/update-product.dto';
 
 
 @Injectable({
@@ -40,7 +41,19 @@ export class ProductsService {
         return this.http.get<GetItemsPage<Product>>(this.apiUrl, { params });
     }
 
+    getProduct(id: number): Observable<Product> {
+        return this.http.get<Product>(`${this.apiUrl}/${id}`);
+    }
+
     createProduct(data: CreateProductDto): Observable<Product> {
         return this.http.post<Product>(this.apiUrl, data);
+    }
+
+    updateProduct(id: number, data: UpdateProductDto): Observable<Product> {
+        return this.http.patch<Product>(`${this.apiUrl}/${id}`, data);
+    }
+
+    deleteProduct(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 }
