@@ -31,7 +31,9 @@ export class StockMovementService {
     fromDate?: string,
     toDate?: string,
     productId?: number,
-    createdByUserId?: number
+    createdByUserId?: number,
+    sortBy?: string,
+    sortDir?: string
   ): Observable<GetItemsPage<StockMovementModel>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -52,6 +54,12 @@ export class StockMovementService {
     }
     if (createdByUserId) {
       params = params.set('createdByUserId', createdByUserId.toString());
+    }
+    if (sortBy) {
+      params = params.set('sortBy', sortBy);
+    }
+    if (sortDir) {
+      params = params.set('sortDir', sortDir);
     }
 
     return this.http.get<GetItemsPage<StockMovementModel>>(this.apiUrl, { params });

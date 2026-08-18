@@ -43,11 +43,20 @@
       <tr>
         <th>ID</th>
         <th>Cod Produs</th>
-        <th>Nume Produs</th>
+        <th style="cursor: pointer; color: blue;" (click)="toggleSort('PRODUCT_NAME')">
+          Nume Produs
+          <span *ngIf="currentSortBy === 'PRODUCT_NAME'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+        </th>
         <th>Tip</th>
-        <th>Cantitate</th>
+        <th style="cursor: pointer; color: blue;" (click)="toggleSort('QUANTITY')">
+          Cantitate
+          <span *ngIf="currentSortBy === 'QUANTITY'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+        </th>
         <th>Stoc Rezultat</th>
-        <th>Data</th>
+        <th style="cursor: pointer; color: blue;" (click)="toggleSort('CREATED_AT')">
+          Data
+          <span *ngIf="currentSortBy === 'CREATED_AT'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+        </th>
         <th>Utilizator</th>
       </tr>
     </thead>

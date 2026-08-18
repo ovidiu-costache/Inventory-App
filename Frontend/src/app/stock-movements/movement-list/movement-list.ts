@@ -25,6 +25,10 @@ export class MovementListComponent implements OnInit {
   filterProductId: number | null = null;
   filterUserId: number | null = null;
 
+  // Sort fields
+  currentSortBy: string = 'CREATED_AT';
+  currentSortDir: string = 'DESC';
+
   constructor(
     private movementService: StockMovementService,
     private cdr: ChangeDetectorRef
@@ -44,7 +48,10 @@ export class MovementListComponent implements OnInit {
     const prodId = this.filterProductId || undefined;
     const userId = this.filterUserId || undefined;
 
-    this.movementService.getMovements(this.page, this.pageSize, type, from, to, prodId, userId)
+    this.movementService.getMovements(
+      this.page, this.pageSize, type, from, to, prodId, userId, 
+      this.currentSortBy, this.currentSortDir
+    )
       .subscribe({
         next: (response) => {
           this.movements = response.items;
@@ -67,6 +74,20 @@ export class MovementListComponent implements OnInit {
     this.loadMovements();
   }
 
+  // Handle sorting
+  toggleSort(column: string): void {
+    if (this.currentSortBy === column) {
+      // Toggle direction
+      this.currentSortDir = this.currentSortDir === 'ASC' ? 'DESC' : 'ASC';
+    } else {
+      // New column, default to ASC (except for date where DESC makes more sense initially, but ASC is fine)
+      this.currentSortBy = column;
+      this.currentSortDir = column === 'CREATED_AT' ? 'DESC' : 'ASC';
+    }
+    this.page = 1;
+    this.loadMovements();
+  }
+
   // Clear all filters and reload
   clearFilters(): void {
     this.filterType = '';
@@ -74,6 +95,8 @@ export class MovementListComponent implements OnInit {
     this.filterToDate = '';
     this.filterProductId = null;
     this.filterUserId = null;
+    this.currentSortBy = 'CREATED_AT';
+    this.currentSortDir = 'DESC';
     this.page = 1;
     this.loadMovements();
   }
