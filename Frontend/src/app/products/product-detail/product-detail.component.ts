@@ -7,11 +7,12 @@ import { CategoriesService } from '../../services/categories.service';
 import { Product } from '../../models/product.model';
 import { Category } from '../../models/category.model';
 import { UpdateProductDto } from '../dtos/update-product.dto';
+import { ProductFormComponent, ProductFormData } from '../product-form/product-form.component';
 
 @Component({
     selector: 'app-product-detail',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, ProductFormComponent],
     templateUrl: './product-detail.component.html'
 })
 export class ProductDetailComponent implements OnInit {
@@ -25,7 +26,7 @@ export class ProductDetailComponent implements OnInit {
     deleteError = '';
 
     // Edit form fields
-    editData = {
+    editData: ProductFormData = {
         code: '',
         name: '',
         description: '',
@@ -114,7 +115,7 @@ export class ProductDetailComponent implements OnInit {
         }
     }
 
-    saveChanges(): void {
+    saveChanges(submittedData: ProductFormData): void {
         if (!this.product) return;
         this.saveError = '';
         this.isSaving = true;
@@ -122,31 +123,31 @@ export class ProductDetailComponent implements OnInit {
         // Build a patch DTO with only changed fields
         const dto: UpdateProductDto = {};
 
-        if (this.editData.code.trim() !== this.product.code) {
-            dto.code = this.editData.code.trim();
+        if (submittedData.code.trim() !== this.product.code) {
+            dto.code = submittedData.code.trim();
         }
-        if (this.editData.name.trim() !== this.product.name) {
-            dto.name = this.editData.name.trim();
+        if (submittedData.name.trim() !== this.product.name) {
+            dto.name = submittedData.name.trim();
         }
-        const newDesc = this.editData.description.trim();
+        const newDesc = submittedData.description?.trim() || '';
         const oldDesc = this.product.description || '';
         if (newDesc !== oldDesc) {
             dto.description = newDesc;
         }
-        if (this.editData.categoryId && this.editData.categoryId > 0) {
-            dto.categoryId = this.editData.categoryId;
+        if (submittedData.categoryId && submittedData.categoryId > 0) {
+            dto.categoryId = submittedData.categoryId;
         }
-        if (this.editData.unitOfMeasure.trim() !== this.product.unitOfMeasure) {
-            dto.unitOfMeasure = this.editData.unitOfMeasure.trim();
+        if (submittedData.unitOfMeasure.trim() !== this.product.unitOfMeasure) {
+            dto.unitOfMeasure = submittedData.unitOfMeasure.trim();
         }
-        if (this.editData.price !== this.product.price) {
-            dto.price = this.editData.price;
+        if (submittedData.price !== this.product.price) {
+            dto.price = submittedData.price;
         }
-        if (this.editData.reorderThreshold !== this.product.reorderThreshold) {
-            dto.reorderThreshold = this.editData.reorderThreshold;
+        if (submittedData.reorderThreshold !== this.product.reorderThreshold) {
+            dto.reorderThreshold = submittedData.reorderThreshold;
         }
-        if (this.editData.isActive !== this.product.isActive) {
-            dto.isActive = this.editData.isActive;
+        if (submittedData.isActive !== this.product.isActive) {
+            dto.isActive = submittedData.isActive;
         }
 
         // Check if anything changed
@@ -166,7 +167,7 @@ export class ProductDetailComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error updating product', err);
-                this.saveError = err.error?.detail || err.error?.title || 'Eroare la salvarea modificarilor.';
+                this.saveError = err.error?.detail || err.error?.title || 'Error saving changes.';
                 this.isSaving = false;
                 this.cdr.detectChanges();
             }
@@ -175,7 +176,7 @@ export class ProductDetailComponent implements OnInit {
 
     confirmDelete(): void {
         if (!this.product) return;
-        const confirmed = confirm(`Esti sigur ca vrei sa stergi produsul "${this.product.name}" (${this.product.code})?`);
+        const confirmed = confirm(`Are you sure you want to delete the product "${this.product.name}" (${this.product.code})?`);
         if (!confirmed) return;
 
         this.deleteError = '';
@@ -187,7 +188,7 @@ export class ProductDetailComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting product', err);
-                this.deleteError = err.error?.detail || err.error?.title || 'Eroare la stergerea produsului.';
+                this.deleteError = err.error?.detail || err.error?.title || 'Error deleting product.';
                 this.isDeleting = false;
                 this.cdr.detectChanges();
             }

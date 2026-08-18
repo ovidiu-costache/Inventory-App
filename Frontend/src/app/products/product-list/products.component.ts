@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ProductsService } from '../products.service';
 import { Product } from '../../models/product.model';
+import { SortByEnum } from '../enums/sort-by.enum';
+import { SortDirEnum } from '../enums/sort-dir.enum';
+import { StockStateEnum } from '../enums/stock-state.enum';
 
 @Component({
     selector: 'app-products',
@@ -18,16 +21,21 @@ export class ProductsComponent implements OnInit {
     hasMore = false;
     loadError = false;
 
-    // Filter fields (matching backend params)
+    // Enums for template
+    SortByEnum = SortByEnum;
+    SortDirEnum = SortDirEnum;
+    StockStateEnum = StockStateEnum;
+
+    // Filter fields
     filterSearch = '';
     filterCategoryId: number | null = null;
-    filterStockState = '';
+    filterStockState: StockStateEnum | '' = '';
     filterMinPrice: number | null = null;
     filterMaxPrice: number | null = null;
 
-    // Sort fields (backend accepts: NAME, PRICE, STOCK)
-    currentSortBy: string = 'NAME';
-    currentSortDir: string = 'ASC';
+    // Sort fields
+    currentSortBy: SortByEnum = SortByEnum.NAME;
+    currentSortDir: SortDirEnum = SortDirEnum.ASC;
 
     constructor(private productsService: ProductsService, private cdr: ChangeDetectorRef) { }
 
@@ -64,19 +72,19 @@ export class ProductsComponent implements OnInit {
             });
     }
 
-    // Called by the "Filtreaza" button
+    // Called by the "Filter" button
     applyFilters(): void {
         this.page = 1;
         this.loadProducts();
     }
 
-    // Handle sorting (backend accepts: NAME, PRICE, STOCK)
-    toggleSort(column: string): void {
-        if (this.currentSortBy === column) {
-            this.currentSortDir = this.currentSortDir === 'ASC' ? 'DESC' : 'ASC';
+    // Handle sorting
+    toggleSort(columnName: SortByEnum): void {
+        if (this.currentSortBy === columnName) {
+            this.currentSortDir = this.currentSortDir === SortDirEnum.ASC ? SortDirEnum.DESC : SortDirEnum.ASC;
         } else {
-            this.currentSortBy = column;
-            this.currentSortDir = 'ASC';
+            this.currentSortBy = columnName;
+            this.currentSortDir = SortDirEnum.ASC;
         }
         this.page = 1;
         this.loadProducts();
@@ -89,8 +97,8 @@ export class ProductsComponent implements OnInit {
         this.filterStockState = '';
         this.filterMinPrice = null;
         this.filterMaxPrice = null;
-        this.currentSortBy = 'NAME';
-        this.currentSortDir = 'ASC';
+        this.currentSortBy = SortByEnum.NAME;
+        this.currentSortDir = SortDirEnum.ASC;
         this.page = 1;
         this.loadProducts();
     }

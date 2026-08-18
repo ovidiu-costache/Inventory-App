@@ -6,17 +6,18 @@ import { ProductsService } from '../products.service';
 import { CategoriesService } from '../../services/categories.service';
 import { CreateProductDto } from '../dtos/create-product.dto';
 import { Category } from '../../models/category.model';
+import { ProductFormComponent, ProductFormData } from '../product-form/product-form.component';
 
 @Component({
     selector: 'app-product-create',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, ProductFormComponent],
     templateUrl: './product-create.component.html'
 })
 export class ProductCreateComponent implements OnInit {
     categories: Category[] = [];
 
-    formData: CreateProductDto = {
+    formData: ProductFormData = {
         code: '',
         name: '',
         description: '',
@@ -40,9 +41,6 @@ export class ProductCreateComponent implements OnInit {
         this.categoriesService.getCategories().subscribe({
             next: (data) => {
                 this.categories = data;
-                if (this.categories.length > 0) {
-                    this.formData.categoryId = this.categories[0].id; // default selection
-                }
                 this.cdr.detectChanges();
             },
             error: (err) => {
@@ -51,48 +49,48 @@ export class ProductCreateComponent implements OnInit {
         });
     }
 
-    onSubmit(): void {
+    onSubmit(submittedData: ProductFormData): void {
         this.submitError = '';
         this.isSubmitting = true;
 
         // Basic client-side validation
-        if (!this.formData.code.trim()) {
-            this.submitError = 'Codul produsului este obligatoriu.';
+        if (!submittedData.code.trim()) {
+            this.submitError = 'Product code is required.';
             this.isSubmitting = false;
             return;
         }
-        if (!this.formData.name.trim()) {
-            this.submitError = 'Numele produsului este obligatoriu.';
+        if (!submittedData.name.trim()) {
+            this.submitError = 'Product name is required.';
             this.isSubmitting = false;
             return;
         }
-        if (!this.formData.categoryId || this.formData.categoryId <= 0) {
-            this.submitError = 'Categoria este obligatorie.';
+        if (!submittedData.categoryId || submittedData.categoryId <= 0) {
+            this.submitError = 'Category is required.';
             this.isSubmitting = false;
             return;
         }
-        if (!this.formData.unitOfMeasure.trim()) {
-            this.submitError = 'Unitatea de masura este obligatorie.';
+        if (!submittedData.unitOfMeasure.trim()) {
+            this.submitError = 'Unit of measure is required.';
             this.isSubmitting = false;
             return;
         }
-        if (this.formData.price < 0) {
-            this.submitError = 'Pretul nu poate fi negativ.';
+        if (submittedData.price < 0) {
+            this.submitError = 'Price cannot be negative.';
             this.isSubmitting = false;
             return;
         }
-        if (this.formData.reorderThreshold < 0) {
-            this.submitError = 'Pragul de reaprovizionare nu poate fi negativ.';
+        if (submittedData.reorderThreshold < 0) {
+            this.submitError = 'Reorder threshold cannot be negative.';
             this.isSubmitting = false;
             return;
         }
 
         const dto: CreateProductDto = {
-            ...this.formData,
-            code: this.formData.code.trim(),
-            name: this.formData.name.trim(),
-            description: this.formData.description?.trim() || undefined,
-            unitOfMeasure: this.formData.unitOfMeasure.trim()
+            ...submittedData,
+            code: submittedData.code.trim(),
+            name: submittedData.name.trim(),
+            description: submittedData.description?.trim() || undefined,
+            unitOfMeasure: submittedData.unitOfMeasure.trim()
         };
 
         this.productsService.createProduct(dto).subscribe({
@@ -101,7 +99,7 @@ export class ProductCreateComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error creating product', err);
-                this.submitError = err.error?.detail || err.error?.title || 'Eroare la crearea produsului. Verifica datele si incearca din nou.';
+                this.submitError = err.error?.detail || err.error?.title || 'Error creating product. Please check the data and try again.';
                 this.isSubmitting = false;
                 this.cdr.detectChanges();
             }

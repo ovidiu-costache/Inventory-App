@@ -1,1 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
+
+* {
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+input, select, textarea {
+  padding: 3px !important;
+  border-radius: 4px;
+  border: 1px solid #939596;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table td, table th {
+    padding: 7px 10px;
+    border-bottom: 1px solid #828282;
+}
+
+table th {
+    border-bottom: 2px solid #939596;
+}
+
+table label {
+    font-weight: bold;
+}

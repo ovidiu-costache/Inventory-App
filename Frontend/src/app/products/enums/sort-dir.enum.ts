@@ -1,4 +1,4 @@
-export enum SortDirection {
+export enum SortDirEnum {
     ASC = 'ASC',
     DESC = 'DESC'
 }

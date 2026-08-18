@@ -1,41 +1,41 @@
 <div>
-    <h2>Produse</h2>
+    <h2>Products</h2>
 
     <!-- Connection error -->
     @if (loadError) {
     <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
-        Nu se poate conecta la server. Verifica ca backend-ul ruleaza.
-        <button (click)="loadProducts()" style="margin-left: 10px;">Reincearca</button>
+        Unable to connect to the server. Make sure the backend is running.
+        <button (click)="loadProducts()" style="margin-left: 10px;">Retry</button>
     </div>
     }
 
     <!-- Filters -->
-    <div style="margin-bottom: 10px;">
-        <label>Cautare: </label>
-        <input type="text" [(ngModel)]="filterSearch" placeholder="Nume sau cod produs..."
+    <div style="margin-bottom: 20px;">
+        <label>Search: </label>
+        <input type="text" [(ngModel)]="filterSearch" placeholder="Name or product code..."
             style="width: 180px; margin-right: 10px;">
 
-        <label>Stare stoc: </label>
+        <label>Stock state: </label>
         <select [(ngModel)]="filterStockState" style="margin-right: 10px;">
-            <option value="">Toate</option>
-            <option value="IN_STOCK">In stoc</option>
-            <option value="LOW_STOCK">Stoc redus</option>
-            <option value="OUT_OF_STOCK">Fara stoc</option>
+            <option value="">All</option>
+            <option [value]="StockStateEnum.IN_STOCK">In Stock</option>
+            <option [value]="StockStateEnum.LOW_STOCK">Low Stock</option>
+            <option [value]="StockStateEnum.OUT_OF_STOCK">Out of Stock</option>
         </select>
 
-        <label>Pret min: </label>
+        <label>Min price: </label>
         <input type="number" [(ngModel)]="filterMinPrice" style="width: 80px; margin-right: 10px;">
 
-        <label>Pret max: </label>
+        <label>Max price: </label>
         <input type="number" [(ngModel)]="filterMaxPrice" style="width: 80px; margin-right: 10px;">
 
-        <button (click)="applyFilters()">Filtreaza</button>
-        <button (click)="clearFilters()" style="margin-left: 5px;">Reseteaza</button>
+        <button (click)="applyFilters()">Filter</button>
+        <button (click)="clearFilters()" style="margin-left: 5px;">Reset</button>
     </div>
 
     <button routerLink="/products/new"
         style="padding: 10px 15px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
-        + Adauga produs nou
+        + Add New Product
     </button>
     <br><br>
 
@@ -43,29 +43,29 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Cod</th>
-                <th style="cursor: pointer; color: blue;" (click)="toggleSort('NAME')">
-                    Nume
-                    @if (currentSortBy === 'NAME') {
-                    <span style="float: right;">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                <th>Code</th>
+                <th style="cursor: pointer; color: blue;" (click)="toggleSort(SortByEnum.NAME)">
+                    Name
+                    @if (currentSortBy === SortByEnum.NAME) {
+                    <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th style="cursor: pointer; color: blue;" (click)="toggleSort('PRICE')">
-                    Pret
-                    @if (currentSortBy === 'PRICE') {
-                    <span style="float: right;">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                <th style="cursor: pointer; color: blue;" (click)="toggleSort(SortByEnum.PRICE)">
+                    Price
+                    @if (currentSortBy === SortByEnum.PRICE) {
+                    <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th style="cursor: pointer; color: blue;" (click)="toggleSort('STOCK')">
-                    Stoc
-                    @if (currentSortBy === 'STOCK') {
-                    <span style="float: right;">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                <th style="cursor: pointer; color: blue;" (click)="toggleSort(SortByEnum.STOCK)">
+                    Stock
+                    @if (currentSortBy === SortByEnum.STOCK) {
+                    <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th>Categorie</th>
-                <th>UM</th>
-                <th>Prag reaprovizionare</th>
-                <th>Activ</th>
+                <th>Category</th>
+                <th>U.o.M</th>
+                <th>Reorder Threshold</th>
+                <th>Active</th>
             </tr>
         </thead>
         <tbody>
@@ -77,16 +77,16 @@
                     </a></td>
                 <td>{{ p.name }}</td>
                 <td>{{ p.price | number:'1.2-2' }}</td>
-                <td>{{ p.currentStock }}</td>
+                <td style="text-align: center;">{{ p.currentStock }}</td>
                 <td>{{ p.category }}</td>
                 <td>{{ p.unitOfMeasure }}</td>
-                <td>{{ p.reorderThreshold }}</td>
-                <td>{{ p.isActive ? 'Da' : 'Nu' }}</td>
+                <td style="text-align: center;">{{ p.reorderThreshold }}</td>
+                <td style="text-align: center;">{{ p.isActive ? 'Yes' : 'No' }}</td>
             </tr>
             }
             @if (products.length === 0 && !loadError) {
             <tr>
-                <td colspan="9">Nu exista produse inregistrate.</td>
+                <td colspan="9">No products found.</td>
             </tr>
             }
         </tbody>
@@ -94,7 +94,7 @@
 
     <br>
 
-    <button (click)="prevPage()" [disabled]="page === 1">Inapoi</button>
-    <span> Pagina {{ page }} </span>
-    <button (click)="nextPage()" [disabled]="!hasMore">Inainte</button>
+    <button (click)="prevPage()" [disabled]="page === 1">Previous</button>
+    <span> Page {{ page }} </span>
+    <button (click)="nextPage()" [disabled]="!hasMore">Next</button>
 </div>
