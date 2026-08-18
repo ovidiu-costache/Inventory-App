@@ -14,7 +14,7 @@ namespace InventoryApp.Tests
         private DbServices CreateDbService()
         {
             // Add password if needed
-            var connectionString = "Server=localhost,1433;Database=InventoryAppDb;Trusted_Connection=True;TrustServerCertificate=True;";
+            var connectionString = "Server=localhost,1433;Database=InventoryAppDb;User Id=sa;Password=<YOUR_PASSWORD_HERE>;TrustServerCertificate=True;";
 
             var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseSqlServer(connectionString)
