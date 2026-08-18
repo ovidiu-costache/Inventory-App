@@ -14,7 +14,7 @@ public class DbServices {
 
     public async Task<(IReadOnlyList<ProductDto>, bool)> GetProductsPageAsync(
         int page, int pageSize, int? categoryId, string? stockState, decimal? minPrice, decimal? maxPrice,
-        string? search, string sortBy, string sortDir)
+        string? search, string? sortBy, string sortDir)
     {
         // SQL sp_GetProductsPage
         var items = await _db.Database.SqlQueryRaw<ProductDto>(
