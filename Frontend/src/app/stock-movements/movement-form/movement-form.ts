@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { StockMovementService, CreateStockMovementDto } from '../stock-movement';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-movement-form',
@@ -24,6 +25,7 @@ export class MovementFormComponent {
 
   constructor(
     private movementService: StockMovementService,
+    private notificationService: NotificationService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) { }
@@ -45,6 +47,8 @@ export class MovementFormComponent {
 
     this.movementService.createMovement(this.model).subscribe({
       next: () => {
+        // Fetch notifications to update the badge immediately
+        this.notificationService.fetchNotifications();
         this.router.navigateByUrl('/movements');
       },
       error: (err) => {
