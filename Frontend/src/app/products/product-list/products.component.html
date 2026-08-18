@@ -1,0 +1,98 @@
+<div>
+    <h2>Produse</h2>
+
+    <!-- Connection error -->
+    @if (loadError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        Nu se poate conecta la server. Verifica ca backend-ul ruleaza.
+        <button (click)="loadProducts()" style="margin-left: 10px;">Reincearca</button>
+    </div>
+    }
+
+    <!-- Filters -->
+    <div style="margin-bottom: 10px;">
+        <label>Cautare: </label>
+        <input type="text" [(ngModel)]="filterSearch" placeholder="Nume sau cod produs..."
+            style="width: 180px; margin-right: 10px;">
+
+        <label>Stare stoc: </label>
+        <select [(ngModel)]="filterStockState" style="margin-right: 10px;">
+            <option value="">Toate</option>
+            <option value="IN_STOCK">In stoc</option>
+            <option value="LOW_STOCK">Stoc redus</option>
+            <option value="OUT_OF_STOCK">Fara stoc</option>
+        </select>
+
+        <label>Pret min: </label>
+        <input type="number" [(ngModel)]="filterMinPrice" style="width: 80px; margin-right: 10px;">
+
+        <label>Pret max: </label>
+        <input type="number" [(ngModel)]="filterMaxPrice" style="width: 80px; margin-right: 10px;">
+
+        <button (click)="applyFilters()">Filtreaza</button>
+        <button (click)="clearFilters()" style="margin-left: 5px;">Reseteaza</button>
+    </div>
+
+    <button routerLink="/products/new"
+        style="padding: 10px 15px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        + Adauga produs nou
+    </button>
+    <br><br>
+
+    <table border="1" cellspacing="0" cellpadding="5" width="100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cod</th>
+                <th style="cursor: pointer; color: blue;" (click)="toggleSort('NAME')">
+                    Nume
+                    @if (currentSortBy === 'NAME') {
+                    <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                    }
+                </th>
+                <th>Categorie</th>
+                <th>UM</th>
+                <th style="cursor: pointer; color: blue;" (click)="toggleSort('PRICE')">
+                    Pret
+                    @if (currentSortBy === 'PRICE') {
+                    <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                    }
+                </th>
+                <th style="cursor: pointer; color: blue;" (click)="toggleSort('STOCK')">
+                    Stoc
+                    @if (currentSortBy === 'STOCK') {
+                    <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+                    }
+                </th>
+                <th>Prag reaprovizionare</th>
+                <th>Activ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (p of products; track p.id) {
+            <tr>
+                <td>{{ p.id }}</td>
+                <td><strong>{{ p.code }}</strong></td>
+                <td>{{ p.name }}</td>
+                <td>{{ p.category }}</td>
+                <td>{{ p.unitOfMeasure }}</td>
+                <td>{{ p.price | number:'1.2-2' }}</td>
+                <td>{{ p.currentStock }}</td>
+                <td>{{ p.reorderThreshold }}</td>
+                <td>{{ p.isActive ? 'Da' : 'Nu' }}</td>
+            </tr>
+            }
+            @if (products.length === 0 && !loadError) {
+            <tr>
+                <td colspan="9">Nu exista produse inregistrate.</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <br>
+
+    <button (click)="prevPage()" [disabled]="page === 1">Inapoi</button>
+    <span> Pagina {{ page }} </span>
+    <button (click)="nextPage()" [disabled]="!hasMore">Inainte</button>
+</div>

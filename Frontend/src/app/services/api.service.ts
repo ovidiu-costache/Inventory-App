@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ApiService {
   // Update if using a different URL
-  protected readonly baseUrl = 'https://localhost:7118/api'; 
+  protected readonly baseUrl = 'https://localhost:7118/api';
 
   constructor(protected http: HttpClient) { }
 }
