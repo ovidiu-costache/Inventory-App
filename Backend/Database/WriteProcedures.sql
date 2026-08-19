@@ -311,3 +311,36 @@ BEGIN
     WHERE Id = @Id;
 END
 GO
+
+CREATE OR ALTER PROCEDURE sp_SignUpUser
+    @Username NVARCHAR(50),
+    @FullName NVARCHAR(100),
+    @Password NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Check if username already exists (50003 maps to HTTP 409 Conflict)
+        -- Use BIN collation to ensure exact case match
+        IF EXISTS (SELECT 1 FROM AppUser WHERE Username COLLATE Latin1_General_BIN = @Username)
+        BEGIN
+            ;THROW 50003, 'Username already exists.', 1;
+        END
+
+        BEGIN TRAN;
+            INSERT INTO AppUser (Username, FullName, Password)
+            VALUES (@Username, @FullName, @Password);
+
+            DECLARE @NewUserId INT = SCOPE_IDENTITY();
+        COMMIT TRAN;
+
+        SELECT @NewUserId AS Id, @Username AS Username, @FullName AS FullName;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRAN;
+        THROW;
+    END CATCH
+END;
+GO

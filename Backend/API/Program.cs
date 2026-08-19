@@ -53,4 +53,8 @@ stockMovementsGroup.MapStockMovementWriteEndpoints();
 var notificationsGroup = app.MapGroup("/api/notifications");
 notificationsGroup.MapNotificationEndpoints();
 
+// Auth
+var authGroup = app.MapGroup("/api/auth");
+authGroup.MapAuthEndpoints();
+
 app.Run();

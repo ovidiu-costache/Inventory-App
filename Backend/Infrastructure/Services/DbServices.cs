@@ -236,4 +236,37 @@ public class DbServices {
             "EXEC sp_ResolveNotification @Id",
             new SqlParameter("@Id", id));
     }
+
+    public async Task<UserDto> LoginAsync(LoginRequestDto dto)
+    {
+        // Basic validation
+        if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+            throw new ArgumentException("Username and Password are required.");
+
+        // sp_LoginUser
+        var results = await _db.Database.SqlQueryRaw<UserDto>(
+            "EXEC sp_LoginUser @Username, @Password",
+            new SqlParameter("@Username", dto.Username),
+            new SqlParameter("@Password", dto.Password)
+        ).ToListAsync();
+
+        return results.First();
+    }
+
+    public async Task<UserDto> SignUpAsync(SignUpRequestDto dto)
+    {
+        // Basic validation
+        if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password) || string.IsNullOrWhiteSpace(dto.FullName))
+            throw new ArgumentException("All fields are required.");
+
+        // sp_SignUpUser
+        var results = await _db.Database.SqlQueryRaw<UserDto>(
+            "EXEC sp_SignUpUser @Username, @FullName, @Password",
+            new SqlParameter("@Username", dto.Username),
+            new SqlParameter("@FullName", dto.FullName),
+            new SqlParameter("@Password", dto.Password)
+        ).ToListAsync();
+
+        return results.First();
+    }
 }

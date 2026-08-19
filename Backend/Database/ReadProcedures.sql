@@ -221,3 +221,32 @@ BEGIN
         AND n.IsResolved = 0
     ORDER BY n.TriggeredAt DESC;
 END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_LoginUser
+    @Username NVARCHAR(50),
+    @Password NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        DECLARE @UserId INT;
+        DECLARE @FullName NVARCHAR(100);
+
+        SELECT @UserId = Id, @FullName = FullName
+        FROM AppUser
+        WHERE Username COLLATE Latin1_General_BIN = @Username AND Password COLLATE Latin1_General_BIN = @Password;
+
+        IF @UserId IS NULL
+        BEGIN
+            ;THROW 50005, 'Invalid username or password.', 1;
+        END
+
+        SELECT @UserId AS Id, @Username AS Username, @FullName AS FullName;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO

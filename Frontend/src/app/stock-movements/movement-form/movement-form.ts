@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { StockMovementService, CreateStockMovementDto } from '../stock-movement';
 import { NotificationService } from '../../services/notification.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-movement-form',
@@ -26,9 +27,16 @@ export class MovementFormComponent {
   constructor(
     private movementService: StockMovementService,
     private notificationService: NotificationService,
+    private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {
+    // Dynamically set the createdByUserId from the auth service
+    const user = this.authService.currentUserValue;
+    if (user) {
+      this.model.createdByUserId = user.id;
+    }
+  }
 
   onSubmit(): void {
     this.errorMessage = '';
