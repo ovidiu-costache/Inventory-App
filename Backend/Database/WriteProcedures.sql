@@ -1,6 +1,37 @@
 USE InventoryAppDb;
 GO
 
+DROP PROCEDURE IF EXISTS sp_InsertCategory;
+GO
+CREATE PROCEDURE sp_InsertCategory
+    @Name NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Category name must be unique
+        IF EXISTS (SELECT 1 FROM Category WHERE Name = @Name)
+            THROW 50002, 'Category name already exists.', 1;
+
+        BEGIN TRAN;
+            INSERT INTO Category (Name)
+            VALUES (@Name);
+            
+            DECLARE @NewId INT = SCOPE_IDENTITY();
+        COMMIT TRAN;
+
+        SELECT Id, Name FROM Category WHERE Id = @NewId;
+        
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRAN;
+        THROW;
+    END CATCH
+END;
+GO
+
 DROP PROCEDURE IF EXISTS sp_InsertProduct;
 GO
 CREATE PROCEDURE sp_InsertProduct

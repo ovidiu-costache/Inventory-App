@@ -204,6 +204,28 @@ public class DbServices {
             new SqlParameter("@Id", id));
     }
 
+    public async Task<Domain.Entities.Category> CreateCategoryAsync(CreateCategoryDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+        {
+            throw new ArgumentException("Category name is required.");
+        }
+
+        var results = await _db.Database.SqlQueryRaw<Domain.Entities.Category>(
+                "EXEC sp_InsertCategory @Name",
+                new SqlParameter("@Name", dto.Name.Trim()))
+            .ToListAsync();
+
+        var result = results.FirstOrDefault();
+
+        if (result == null)
+        {
+            throw new Exception("Failed to create category.");
+        }
+
+        return result;
+    }
+
     public async Task<StockMovementDto> CreateStockMovementAsync(CreateStockMovementDto dto)
     {
         // Basic validation

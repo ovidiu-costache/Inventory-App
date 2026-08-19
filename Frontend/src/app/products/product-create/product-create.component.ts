@@ -64,8 +64,13 @@ export class ProductCreateComponent implements OnInit {
             this.isSubmitting = false;
             return;
         }
-        if (!submittedData.categoryId || submittedData.categoryId <= 0) {
+        if (!submittedData.categoryId || (submittedData.categoryId <= 0 && submittedData.categoryId !== -1)) {
             this.submitError = 'Category is required.';
+            this.isSubmitting = false;
+            return;
+        }
+        if (submittedData.categoryId === -1 && !submittedData.newCategoryName?.trim()) {
+            this.submitError = 'New category name is required.';
             this.isSubmitting = false;
             return;
         }
@@ -85,6 +90,25 @@ export class ProductCreateComponent implements OnInit {
             return;
         }
 
+        if (submittedData.categoryId === -1 && submittedData.newCategoryName) {
+            this.categoriesService.createCategory(submittedData.newCategoryName.trim()).subscribe({
+                next: (cat) => {
+                    submittedData.categoryId = cat.id;
+                    this.createProduct(submittedData);
+                },
+                error: (err) => {
+                    console.error('Error creating category', err);
+                    this.submitError = err.error?.detail || err.error?.title || 'Error creating category. The name might already exist.';
+                    this.isSubmitting = false;
+                    this.cdr.detectChanges();
+                }
+            });
+        } else {
+            this.createProduct(submittedData);
+        }
+    }
+
+    private createProduct(submittedData: ProductFormData): void {
         const dto: CreateProductDto = {
             ...submittedData,
             code: submittedData.code.trim(),

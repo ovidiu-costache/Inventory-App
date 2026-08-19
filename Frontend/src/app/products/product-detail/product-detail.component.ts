@@ -147,12 +147,33 @@ export class ProductDetailComponent implements OnInit {
             dto.reorderThreshold = submittedData.reorderThreshold;
         }
 
-        // Check if anything changed
-        if (Object.keys(dto).length === 0) {
+        // Check if anything changed (excluding newCategoryName from the check since we handle categoryId manually)
+        if (Object.keys(dto).length === 0 && submittedData.categoryId !== -1) {
             this.isEditing = false;
             this.isSaving = false;
             return;
         }
+
+        if (submittedData.categoryId === -1 && submittedData.newCategoryName) {
+            this.categoriesService.createCategory(submittedData.newCategoryName.trim()).subscribe({
+                next: (cat) => {
+                    submittedData.categoryId = cat.id;
+                    dto.categoryId = cat.id; // Update DTO with the real ID
+                    this.updateProduct(dto);
+                },
+                error: (err) => {
+                    console.error('Error creating category', err);
+                    this.saveError = err.error?.detail || err.error?.title || 'Error creating category. The name might already exist.';
+                    this.isSaving = false;
+                    this.cdr.detectChanges();
+                }
+            });
+        } else {
+            this.updateProduct(dto);
+        }
+    }
+
+    private updateProduct(dto: UpdateProductDto): void {
 
         this.productsService.updateProduct(this.productId, dto).subscribe({
             next: (updated) => {
