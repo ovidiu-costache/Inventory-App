@@ -385,10 +385,12 @@ BEGIN
     SET IsResolved = 1,
         ResolvedAt = GETUTCDATE()
     WHERE Id = @Id;
-END
+END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_SignUpUser
+DROP PROCEDURE IF EXISTS sp_SignUpUser;
+GO
+CREATE PROCEDURE sp_SignUpUser
     @Username NVARCHAR(50),
     @FullName NVARCHAR(100),
     @Password NVARCHAR(255)
