@@ -1,40 +1,40 @@
 <div>
-  <h2>Istoric Miscari Stoc</h2>
+  <h2>Stock Movements History</h2>
 
   <!-- Connection error -->
   <div *ngIf="loadError" style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
-    Nu se poate conecta la server. Verifica ca backend-ul ruleaza.
-    <button (click)="loadMovements()" style="margin-left: 10px;">Reincearca</button>
+    Cannot connect to server. Make sure the backend is running.
+    <button (click)="loadMovements()" style="margin-left: 10px;">Retry</button>
   </div>
 
   <!-- Filters -->
   <div style="margin-bottom: 10px;">
-    <label>Tip miscare: </label>
+    <label>Movement Type: </label>
     <select [(ngModel)]="filterType" style="margin-right: 10px;">
-      <option value="">Toate</option>
-      <option value="INTRARE">Intrare</option>
-      <option value="IESIRE">Iesire</option>
-      <option value="AJUSTARE">Ajustare</option>
+      <option value="">All</option>
+      <option value="INTRARE">In</option>
+      <option value="IESIRE">Out</option>
+      <option value="AJUSTARE">Adjustment</option>
     </select>
 
-    <label>ID Produs: </label>
+    <label>Product ID: </label>
     <input type="number" [(ngModel)]="filterProductId" style="width: 60px; margin-right: 10px;">
 
-    <label>ID Utilizator: </label>
+    <label>User ID: </label>
     <input type="number" [(ngModel)]="filterUserId" style="width: 60px; margin-right: 10px;">
 
-    <label>De la: </label>
+    <label>From: </label>
     <input type="date" [(ngModel)]="filterFromDate" style="margin-right: 10px;">
 
-    <label>Pana la: </label>
+    <label>To: </label>
     <input type="date" [(ngModel)]="filterToDate" style="margin-right: 10px;">
 
-    <button (click)="applyFilters()">Filtreaza</button>
-    <button (click)="clearFilters()" style="margin-left: 5px;">Reseteaza</button>
+    <button (click)="applyFilters()">Filter</button>
+    <button (click)="clearFilters()" style="margin-left: 5px;">Reset</button>
   </div>
 
   <button routerLink="/movements/new" style="padding: 10px 15px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
-    + Adauga miscare noua
+    + Add new movement
   </button>
   <br><br>
 
@@ -42,22 +42,22 @@
     <thead>
       <tr>
         <th>ID</th>
-        <th>Cod Produs</th>
+        <th>Product Code</th>
         <th style="cursor: pointer; color: blue;" (click)="toggleSort('PRODUCT_NAME')">
-          Nume Produs
+          Product Name
           <span *ngIf="currentSortBy === 'PRODUCT_NAME'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
         </th>
-        <th>Tip</th>
+        <th>Type</th>
         <th style="cursor: pointer; color: blue;" (click)="toggleSort('QUANTITY')">
-          Cantitate
+          Quantity
           <span *ngIf="currentSortBy === 'QUANTITY'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
         </th>
-        <th>Stoc Rezultat</th>
+        <th>Resulting Stock</th>
         <th style="cursor: pointer; color: blue;" (click)="toggleSort('CREATED_AT')">
-          Data
+          Date
           <span *ngIf="currentSortBy === 'CREATED_AT'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
         </th>
-        <th>Utilizator</th>
+        <th>User</th>
       </tr>
     </thead>
     <tbody>
@@ -65,21 +65,21 @@
         <td>{{ m.id }}</td>
         <td><strong>{{ m.productCode }}</strong></td>
         <td>{{ m.productName }}</td>
-        <td>{{ m.movementType }}</td>
+        <td>{{ translateType(m.movementType) }}</td>
         <td>{{ m.quantity }}</td>
         <td>{{ m.resultingStock }}</td>
         <td>{{ m.createdAt | date:'short' }}</td>
         <td>{{ m.createdBy }}</td>
       </tr>
       <tr *ngIf="movements.length === 0 && !loadError">
-        <td colspan="8">Nu exista miscari de stoc inregistrate.</td>
+        <td colspan="8">No stock movements found.</td>
       </tr>
     </tbody>
   </table>
 
   <br>
 
-  <button (click)="prevPage()" [disabled]="page === 1">Inapoi</button>
-  <span> Pagina {{ page }} </span>
-  <button (click)="nextPage()" [disabled]="!hasMore">Inainte</button>
+  <button (click)="prevPage()" [disabled]="page === 1">Previous</button>
+  <span> Page {{ page }} </span>
+  <button (click)="nextPage()" [disabled]="!hasMore">Next</button>
 </div>

@@ -35,12 +35,12 @@ export class MovementFormComponent {
 
     // Basic validation before sending to backend
     if (!this.model.productId || this.model.productId <= 0) {
-      this.errorMessage = 'ID-ul produsului trebuie sa fie un numar pozitiv.';
+      this.errorMessage = 'Product ID must be a positive number.';
       this.cdr.detectChanges();
       return;
     }
     if (!this.model.quantity || this.model.quantity <= 0) {
-      this.errorMessage = 'Cantitatea trebuie sa fie un numar strict pozitiv.';
+      this.errorMessage = 'Quantity must be strictly positive.';
       this.cdr.detectChanges();
       return;
     }
@@ -52,45 +52,16 @@ export class MovementFormComponent {
         this.router.navigateByUrl('/movements');
       },
       error: (err) => {
-        // Backend returns ProblemDetails with 'detail' field
+        // Backend returns ProblemDetails with 'detail' field in English
         if (err.error && err.error.detail) {
-          this.errorMessage = this.translateError(err.error.detail);
+          this.errorMessage = err.error.detail;
         } else if (err.status === 0) {
-          this.errorMessage = 'Nu se poate conecta la server. Verifica ca backend-ul ruleaza.';
+          this.errorMessage = 'Cannot connect to server. Check if backend is running.';
         } else {
-          this.errorMessage = 'A aparut o eroare. Status: ' + err.status;
+          this.errorMessage = 'An error occurred. Status: ' + err.status;
         }
         this.cdr.detectChanges();
       }
     });
-  }
-
-  private translateError(errorMsg: string): string {
-    const msg = errorMsg.toLowerCase();
-
-    if (msg.includes('product not found')) {
-      return 'Produsul cu ID-ul introdus nu a fost gasit.';
-    }
-    if (msg.includes('cannot add stock movements to an inactive product')) {
-      return 'Nu poti adauga miscari de stoc pentru un produs inactiv.';
-    }
-    if (msg.includes('insufficient stock available')) {
-      return 'Stoc insuficient pentru a efectua aceasta iesire.';
-    }
-    if (msg.includes('quantity must be strictly positive')) {
-      return 'Cantitatea trebuie sa fie strict pozitiva.';
-    }
-    if (msg.includes('invalid movement type')) {
-      return 'Tipul de miscare selectat este invalid.';
-    }
-    if (msg.includes('user id does not exist')) {
-      return 'Utilizatorul nu exista in sistem.';
-    }
-    if (msg.includes('product is currently being modified')) {
-      return 'Produsul este modificat in acest moment de alt utilizator. Te rog incearca din nou in cateva secunde.';
-    }
-
-    // Default fallback (returns original if no translation matches)
-    return errorMsg;
   }
 }

@@ -1,19 +1,19 @@
 <div>
-  <h2>Alerte Stoc Scazut</h2>
+  <h2>Low Stock Alerts</h2>
 
   <div *ngIf="notifications.length === 0" style="padding: 10px; background-color: #e6ffe6; border: 1px solid #00cc00; color: #006600; border-radius: 4px;">
-    Nu exista notificari curente. Toate produsele au stoc suficient.
+    No current notifications. All products have sufficient stock.
   </div>
 
   <table *ngIf="notifications.length > 0" border="1" cellspacing="0" cellpadding="5" width="100%">
     <thead>
       <tr style="background-color: #ffcccc;">
-        <th>Data declansarii</th>
-        <th>Cod Produs</th>
-        <th>Nume Produs</th>
-        <th>Stoc Curent</th>
-        <th>Prag minim</th>
-        <th>Actiune</th>
+        <th>Trigger Date</th>
+        <th>Product Code</th>
+        <th>Product Name</th>
+        <th>Current Stock</th>
+        <th>Reorder Threshold</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -25,7 +25,7 @@
         <td>{{ n.reorderThreshold }}</td>
         <td>
           <button (click)="resolveNotification(n.id)" style="cursor: pointer;">
-            Marcheaza ca rezolvat
+            Mark as resolved
           </button>
         </td>
       </tr>

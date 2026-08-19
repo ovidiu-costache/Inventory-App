@@ -1,48 +1,48 @@
 <div>
-  <h2>Adauga miscare stoc</h2>
+  <h2>Add stock movement</h2>
 
   <!-- Error message (from frontend validation or backend) -->
   <div *ngIf="errorMessage" style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
-    <strong>Eroare:</strong> {{ errorMessage }}
+    <strong>Error:</strong> {{ errorMessage }}
   </div>
 
   <!-- novalidate = let Angular/backend handle validation, not the browser -->
   <form (ngSubmit)="onSubmit()" novalidate>
     <div>
-      <label>ID Produs:</label><br>
+      <label>Product ID:</label><br>
       <input type="number" [(ngModel)]="model.productId" name="productId">
     </div>
     <br>
 
     <div>
-      <label>Tip miscare:</label><br>
+      <label>Movement type:</label><br>
       <select [(ngModel)]="model.movementTypeId" name="movementTypeId">
-        <option [ngValue]="1">INTRARE</option>
-        <option [ngValue]="2">IESIRE</option>
-        <option [ngValue]="3">AJUSTARE</option>
+        <option [ngValue]="1">IN</option>
+        <option [ngValue]="2">OUT</option>
+        <option [ngValue]="3">ADJUSTMENT</option>
       </select>
     </div>
     <br>
 
     <div>
-      <label>Cantitate:</label><br>
+      <label>Quantity:</label><br>
       <input type="number" [(ngModel)]="model.quantity" name="quantity">
     </div>
     <br>
 
     <div>
-      <label>Motiv (optional):</label><br>
+      <label>Reason (optional):</label><br>
       <input type="text" [(ngModel)]="model.reason" name="reason">
     </div>
     <br>
 
     <div>
-      <label>Cod Referinta (optional):</label><br>
+      <label>Reference Code (optional):</label><br>
       <input type="text" [(ngModel)]="model.referenceCode" name="referenceCode">
     </div>
     <br>
 
-    <button type="submit">Salveaza</button>
-    <a routerLink="/movements" style="margin-left: 10px;">Anuleaza</a>
+    <button type="submit">Save</button>
+    <a routerLink="/movements" style="margin-left: 10px;">Cancel</a>
   </form>
 </div>
