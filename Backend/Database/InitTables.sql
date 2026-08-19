@@ -37,12 +37,16 @@ IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AppUs
 BEGIN
     CREATE TABLE AppUser (
         Id INT IDENTITY(1,1) PRIMARY KEY,
-        Username NVARCHAR(50) NOT NULL,
-        FullName NVARCHAR(100) NOT NULL
+        Username NVARCHAR(50) NOT NULL UNIQUE,
+        FullName NVARCHAR(100) NOT NULL,
+        Password NVARCHAR(255) NOT NULL
     );
     
-    INSERT INTO AppUser (Username, FullName) 
-    VALUES ('admin', 'Admin InvetoryApp'), ('operator_depozit_pc', 'Stanescu Dan'), ('operator_depozit_periferice', 'Lucescu Mihai');
+    INSERT INTO AppUser (Username, FullName, Password) 
+    VALUES 
+        ('admin', 'Admin InvetoryApp', 'admin123'), 
+        ('operator_depozit_pc', 'Stanescu Dan', '123456'), 
+        ('operator_depozit_periferice', 'Lucescu Mihai', '123456');
 END
 GO
 
