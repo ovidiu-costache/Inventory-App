@@ -20,6 +20,9 @@ BEGIN
         IF NOT EXISTS (SELECT 1 FROM Category WHERE Id = @CategoryId)
             THROW 50001, 'The specified category does not exist.', 1;
 
+        -- Set UnitOfMeasure to 'pieces' if not provided
+        SET @UnitOfMeasure = ISNULL(TRIM(@UnitOfMeasure), 'pieces');
+
         -- Price cannot be negative (50002 maps to HTTP 400 Bad Request)
         IF @Price < 0
             THROW 50002, 'Price cannot be negative.', 1;
@@ -84,6 +87,10 @@ BEGIN
         -- Category must be valid (50001 maps to HTTP 404 Not Found)
         IF @CategoryId IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Category WHERE Id = @CategoryId)
             THROW 50001, 'The specified category does not exist.', 1;
+
+        -- Set UnitOfMeasure to 'pieces' if not provided
+        IF @UnitOfMeasure IS NULL OR TRIM(@UnitOfMeasure) = ''
+            SET @UnitOfMeasure = 'pieces';
 
         -- Price cannot be negative (50002 maps to HTTP 400 Bad Request)
         IF @Price IS NOT NULL AND @Price < 0

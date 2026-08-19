@@ -40,6 +40,10 @@ var productsGroup = app.MapGroup("/api/products");
 productsGroup.MapProductReadEndpoints();
 productsGroup.MapProductWriteEndpoints();
 
+// Categories
+var categoriesGroup = app.MapGroup("/api/categories");
+categoriesGroup.MapCategoryEndpoints();
+
 // Stock Movements
 var stockMovementsGroup = app.MapGroup("/api/stock-movements");
 stockMovementsGroup.MapStockMovementReadEndpoints();

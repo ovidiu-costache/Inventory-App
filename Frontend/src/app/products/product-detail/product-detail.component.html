@@ -1,0 +1,105 @@
+<div>
+    <!-- Loading error -->
+    @if (loadError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        Could not load product. Make sure the backend is running.
+        <button (click)="loadProduct()" style="margin-left: 10px;">Retry</button>
+    </div>
+    }
+
+    @if (product) {
+    <h2>{{ product.name }}</h2>
+
+    <!-- Save / Delete errors -->
+    @if (saveError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        {{ saveError }}
+    </div>
+    }
+    @if (deleteError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        {{ deleteError }}
+    </div>
+    }
+
+    <!-- VIEW MODE -->
+    @if (!isEditing) {
+    <table cellpadding="6">
+        <tr>
+            <td><label>ID</label></td>
+            <td>{{ product.id }}</td>
+        </tr>
+        <tr>
+            <td><label>Code</label></td>
+            <td>{{ product.code }}</td>
+        </tr>
+        <tr>
+            <td><label>Name</label></td>
+            <td>{{ product.name }}</td>
+        </tr>
+        <tr>
+            <td><label>Description</label></td>
+            <td>{{ product.description || '-' }}</td>
+        </tr>
+        <tr>
+            <td><label>Category</label></td>
+            <td>{{ product.category }}</td>
+        </tr>
+        <tr>
+            <td><label>Unit of Measure</label></td>
+            <td>{{ product.unitOfMeasure }}</td>
+        </tr>
+        <tr>
+            <td><label>Price</label></td>
+            <td>{{ product.price | number:'1.2-2' }}</td>
+        </tr>
+        <tr>
+            <td><label>Current Stock</label></td>
+            <td>{{ product.currentStock }}</td>
+        </tr>
+        <tr>
+            <td><label>Reorder Threshold</label></td>
+            <td>{{ product.reorderThreshold }}</td>
+        </tr>
+        <tr>
+            <td><label>Active</label></td>
+            <td>{{ product.isActive ? 'Yes' : 'No' }}</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <button (click)="toggleEdit()"
+        style="padding: 10px 20px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        Edit
+    </button>
+
+    <button (click)="confirmDelete()" [disabled]="isDeleting"
+        style="padding: 10px 20px; margin-left: 10px; font-weight: bold; cursor: pointer; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        @if (isDeleting) {
+        Deleting...
+        } @else {
+        Delete
+        }
+    </button>
+
+    <button (click)="goBack()"
+        style="padding: 10px 20px; margin-left: 10px; cursor: pointer; background-color: #8e97a0; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        Back to list
+    </button>
+    }
+
+    <!-- EDIT MODE -->
+    @if (isEditing) {
+    <app-product-form
+        [formData]="editData"
+        [categories]="categories"
+        [isSubmitting]="isSaving"
+        submitLabel="Save"
+        [showIsActive]="true"
+        (formSubmit)="saveChanges($event)"
+        (formCancel)="toggleEdit()">
+    </app-product-form>
+    }
+    }
+</div>

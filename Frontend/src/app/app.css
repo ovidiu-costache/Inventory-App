@@ -1,4 +1,5 @@
 /* Minimal styling, to be updated later */
+
 .navbar {
   background-color: #007bff;
   color: white;
@@ -6,7 +7,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand {
@@ -37,4 +38,9 @@
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+a {
+  cursor: pointer;
+  text-decoration: none !important;
 }

@@ -1,0 +1,82 @@
+<form (ngSubmit)="onSubmit()">
+    <table cellpadding="6">
+        <tr>
+            <td><label for="code">Code</label></td>
+            <td>
+                <input id="code" type="text" [(ngModel)]="formData.code" name="code" placeholder="e.g. PROD-001"
+                    style="width: 250px;" required>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="name">Name</label></td>
+            <td>
+                <input id="name" type="text" [(ngModel)]="formData.name" name="name" placeholder="Product name"
+                    style="width: 250px;" required>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="description">Description</label></td>
+            <td>
+                <textarea id="description" [(ngModel)]="formData.description" name="description"
+                    placeholder="Optional description" style="width: 250px; height: 60px;"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="categoryId">Category</label></td>
+            <td>
+                <select id="categoryId" [(ngModel)]="formData.categoryId" name="categoryId"
+                    [style.color]="formData.categoryId === 0 ? '#6c757d' : 'inherit'" style="width: 250px;" required>
+                    <option [ngValue]="0" disabled hidden>Choose category</option>
+                    @for (category of categories; track category.id) {
+                        <option [value]="category.id" style="color: initial;">{{ category.name }}</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="unitOfMeasure">Unit of Measure</label></td>
+            <td>
+                <input id="unitOfMeasure" type="text" [(ngModel)]="formData.unitOfMeasure" name="unitOfMeasure"
+                    placeholder="e.g. pcs, kg, l" style="width: 150px;" required>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="price">Price</label></td>
+            <td>
+                <input id="price" type="number" [(ngModel)]="formData.price" name="price" min="0" step="0.01"
+                    style="width: 120px;" required>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="reorderThreshold">Reorder Threshold</label></td>
+            <td>
+                <input id="reorderThreshold" type="number" [(ngModel)]="formData.reorderThreshold"
+                    name="reorderThreshold" min="0" style="width: 120px;" required>
+            </td>
+        </tr>
+        @if (showIsActive) {
+        <tr>
+            <td><label for="isActive">Active</label></td>
+            <td>
+                <input id="isActive" type="checkbox" [(ngModel)]="formData.isActive" name="isActive">
+            </td>
+        </tr>
+        }
+    </table>
+
+    <br>
+
+    <button type="submit" [disabled]="isSubmitting"
+        style="padding: 10px 20px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        @if (isSubmitting) {
+            Saving...
+        } @else {
+            {{ submitLabel }}
+        }
+    </button>
+
+    <button type="button" (click)="onCancel()" [disabled]="isSubmitting"
+        style="padding: 10px 20px; margin-left: 10px; cursor: pointer; background-color: #8e97a0; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        Cancel
+    </button>
+</form>

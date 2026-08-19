@@ -1,0 +1,20 @@
+<div>
+    <h2>Add New Product</h2>
+
+    <!-- Error message -->
+    @if (submitError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        {{ submitError }}
+    </div>
+    }
+
+    <app-product-form
+        [formData]="formData"
+        [categories]="categories"
+        [isSubmitting]="isSubmitting"
+        submitLabel="Save"
+        [showIsActive]="false"
+        (formSubmit)="onSubmit($event)"
+        (formCancel)="goBack()">
+    </app-product-form>
+</div>
