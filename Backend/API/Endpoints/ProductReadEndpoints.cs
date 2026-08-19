@@ -8,8 +8,8 @@ namespace API.Endpoints
         public static RouteGroupBuilder MapProductReadEndpoints(this RouteGroupBuilder group)
         {
             // GET /api/products
-            group.MapGet("/", async (DbServices db, int page = 1, int pageSize = 20,
-                int? categoryId = null, string? stockState = null, // IN_STOCK | LOW_STOCK | OUT_OF_STOCK
+            group.MapGet("/", async (DbServices db, int page = 1, int pageSize = 20, bool active = true,
+                int? categoryId = null, string? stockState = null, // IN_STOCK | OUT_OF_STOCK | LOW_STOCK
                 decimal? minPrice = null, decimal? maxPrice = null, string? search = null,
                 string? sortBy = null,  // NAME | STOCK | PRICE
                 string sortDir = "ASC"   // ASC | DESC
@@ -17,7 +17,7 @@ namespace API.Endpoints
                 if (page < 1) page = 1;
                 
                 var (items, hasMore) = await db.GetProductsPageAsync(
-                    page, pageSize, categoryId, stockState, minPrice, maxPrice, search, sortBy, sortDir);
+                    page, pageSize, active, categoryId, stockState, minPrice, maxPrice, search, sortBy, sortDir);
 
                 return Results.Ok(new GetItemsPageDto<ProductDto>(
                     Items: items,

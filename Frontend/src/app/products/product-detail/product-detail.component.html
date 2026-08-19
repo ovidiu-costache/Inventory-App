@@ -21,6 +21,11 @@
         {{ deleteError }}
     </div>
     }
+    @if (restoreError) {
+    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+        {{ restoreError }}
+    </div>
+    }
 
     <!-- VIEW MODE -->
     @if (!isEditing) {
@@ -74,6 +79,7 @@
         Edit
     </button>
 
+    @if (product.isActive) {
     <button (click)="confirmDelete()" [disabled]="isDeleting"
         style="padding: 10px 20px; margin-left: 10px; font-weight: bold; cursor: pointer; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-size: 14px;">
         @if (isDeleting) {
@@ -82,6 +88,16 @@
         Delete
         }
     </button>
+    } @else {
+    <button (click)="restoreProduct()" [disabled]="isRestoring"
+        style="padding: 10px 20px; margin-left: 10px; font-weight: bold; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 14px;">
+        @if (isRestoring) {
+        Restoring...
+        } @else {
+        Restore
+        }
+    </button>
+    }
 
     <button (click)="goBack()"
         style="padding: 10px 20px; margin-left: 10px; cursor: pointer; background-color: #8e97a0; color: white; border: none; border-radius: 4px; font-size: 14px;">
@@ -96,7 +112,6 @@
         [categories]="categories"
         [isSubmitting]="isSaving"
         submitLabel="Save"
-        [showIsActive]="true"
         (formSubmit)="saveChanges($event)"
         (formCancel)="toggleEdit()">
     </app-product-form>

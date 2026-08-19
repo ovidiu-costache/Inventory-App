@@ -17,16 +17,17 @@ public class DbServices {
     }
 
     public async Task<(IReadOnlyList<ProductDto>, bool)> GetProductsPageAsync(
-        int page, int pageSize, int? categoryId, string? stockState, decimal? minPrice, decimal? maxPrice,
-        string? search, string? sortBy, string sortDir)
+        int page, int pageSize, bool active, int? categoryId, string? stockState, 
+        decimal? minPrice, decimal? maxPrice, string? search, string? sortBy, string sortDir)
     {
         // SQL sp_GetProductsPage
         var items = await _db.Database.SqlQueryRaw<ProductDto>(
                 @"EXEC sp_GetProductsPage
-                    @Page, @PageSize, @CategoryId, @StockState,
+                    @Page, @PageSize, @Active, @CategoryId, @StockState,
                     @MinPrice, @MaxPrice, @Search, @SortBy, @SortDir",
                 new SqlParameter("@Page", page),
                 new SqlParameter("@PageSize", pageSize),
+                new SqlParameter("@Active", active),
                 new SqlParameter("@CategoryId", (object?)categoryId ?? DBNull.Value),
                 new SqlParameter("@StockState", (object?)stockState ?? DBNull.Value),
                 new SqlParameter("@MinPrice", (object?)minPrice ?? DBNull.Value),
@@ -187,6 +188,42 @@ public class DbServices {
         await _db.Database.ExecuteSqlRawAsync(
             "EXEC sp_SoftDeleteProduct @Id",
             new SqlParameter("@Id", id));
+    }
+
+    public async Task RestoreProductAsync(int id)
+    {
+        // Basic validation
+        if (id <= 0)
+        {
+            throw new ArgumentException("Invalid product ID.");
+        }
+
+        // SQL sp_RestoreProduct
+        await _db.Database.ExecuteSqlRawAsync(
+            "EXEC sp_RestoreProduct @Id",
+            new SqlParameter("@Id", id));
+    }
+
+    public async Task<Domain.Entities.Category> CreateCategoryAsync(CreateCategoryDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+        {
+            throw new ArgumentException("Category name is required.");
+        }
+
+        var results = await _db.Database.SqlQueryRaw<Domain.Entities.Category>(
+                "EXEC sp_InsertCategory @Name",
+                new SqlParameter("@Name", dto.Name.Trim()))
+            .ToListAsync();
+
+        var result = results.FirstOrDefault();
+
+        if (result == null)
+        {
+            throw new Exception("Failed to create category.");
+        }
+
+        return result;
     }
 
     public async Task<StockMovementDto> CreateStockMovementAsync(CreateStockMovementDto dto)

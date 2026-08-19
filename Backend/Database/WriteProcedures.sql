@@ -1,4 +1,40 @@
-CREATE OR ALTER PROCEDURE sp_InsertProduct
+USE InventoryAppDb;
+GO
+
+DROP PROCEDURE IF EXISTS sp_InsertCategory;
+GO
+CREATE PROCEDURE sp_InsertCategory
+    @Name NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Category name must be unique
+        IF EXISTS (SELECT 1 FROM Category WHERE Name = @Name)
+            THROW 50002, 'Category name already exists.', 1;
+
+        BEGIN TRAN;
+            INSERT INTO Category (Name)
+            VALUES (@Name);
+            
+            DECLARE @NewId INT = SCOPE_IDENTITY();
+        COMMIT TRAN;
+
+        SELECT Id, Name FROM Category WHERE Id = @NewId;
+        
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRAN;
+        THROW;
+    END CATCH
+END;
+GO
+
+DROP PROCEDURE IF EXISTS sp_InsertProduct;
+GO
+CREATE PROCEDURE sp_InsertProduct
     @Code NVARCHAR(50),
     @Name NVARCHAR(100),
     @Description NVARCHAR(500),
@@ -62,7 +98,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_UpdateProduct
+DROP PROCEDURE IF EXISTS sp_UpdateProduct;
+GO
+CREATE PROCEDURE sp_UpdateProduct
     @Id INT,
     @Code NVARCHAR(50) = NULL,
     @Name NVARCHAR(100) = NULL,
@@ -130,7 +168,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_SoftDeleteProduct
+DROP PROCEDURE IF EXISTS sp_SoftDeleteProduct;
+GO
+CREATE PROCEDURE sp_SoftDeleteProduct
     @Id INT
 AS
 BEGIN
@@ -160,9 +200,43 @@ BEGIN
 END;
 GO
 
+DROP PROCEDURE IF EXISTS sp_RestoreProduct;
+GO
+CREATE PROCEDURE sp_RestoreProduct
+    @Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Product must exist
+        IF NOT EXISTS (SELECT 1 FROM Product WHERE Id = @Id)
+            THROW 50001, 'Product not found.', 1;
+
+        BEGIN TRAN;
+            -- Restore by setting IsActive to 1 (true)
+            UPDATE Product 
+            SET IsActive = 1 
+            WHERE Id = @Id;
+        COMMIT TRAN;
+
+        -- Return a simple success flag
+        SELECT CAST(1 AS bit) AS Success;
+        
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRAN;
+        THROW;
+    END CATCH
+END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_InsertStockMovement
+GO
+
+DROP PROCEDURE IF EXISTS sp_InsertStockMovement;
+GO
+CREATE PROCEDURE sp_InsertStockMovement
     @ProductId INT,
     @MovementTypeId INT,
     @Quantity DECIMAL(18,2),
@@ -294,7 +368,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_ResolveNotification
+DROP PROCEDURE IF EXISTS sp_ResolveNotification;
+GO
+CREATE PROCEDURE sp_ResolveNotification
     @Id INT
 AS
 BEGIN

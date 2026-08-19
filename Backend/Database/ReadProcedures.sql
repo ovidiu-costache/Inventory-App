@@ -1,12 +1,18 @@
-CREATE OR ALTER PROCEDURE sp_GetProductsPage
+USE InventoryAppDb;
+GO
+
+DROP PROCEDURE IF EXISTS sp_GetProductsPage;
+GO
+CREATE PROCEDURE sp_GetProductsPage
     @Page INT = 1,
     @PageSize INT = 20,
+    @Active BIT = 1,
     @CategoryId INT = NULL,
     @StockState NVARCHAR(20) = NULL,
     @MinPrice DECIMAL(18, 2) = NULL,
     @MaxPrice DECIMAL(18, 2) = NULL,
     @Search NVARCHAR(200) = NULL,
-    @SortBy NVARCHAR(50) = NULL,   -- NAME / STOCK / PRICE
+    @SortBy NVARCHAR(50) = NULL,   -- NAME / STOCK / PRICE / CATEGORY
     @SortDir NVARCHAR(4) = 'ASC'     -- ASC / DESC
 AS
 BEGIN
@@ -19,7 +25,7 @@ BEGIN
     SET @SortDir = TRIM(ISNULL(@SortDir, 'ASC'));
     SET @Search = NULLIF(TRIM(@Search), '');
 
-    IF @SortBy NOT IN ('NAME', 'STOCK', 'PRICE') SET @SortBy = 'NAME';
+    IF @SortBy NOT IN ('NAME', 'STOCK', 'PRICE', 'CATEGORY') SET @SortBy = 'NAME';
     IF @SortDir NOT IN ('ASC', 'DESC') SET @SortDir = 'ASC';
 
     SELECT
@@ -34,7 +40,7 @@ BEGIN
         p.ReorderThreshold,
         p.IsActive
     FROM Product p JOIN Category c ON c.Id = p.CategoryId
-    WHERE p.IsActive = 1
+    WHERE p.IsActive = @Active
         AND (@CategoryId IS NULL OR p.CategoryId = @CategoryId)
         AND (@MinPrice IS NULL OR p.Price >= @MinPrice)
         AND (@MaxPrice IS NULL OR p.Price <= @MaxPrice)
@@ -56,22 +62,21 @@ BEGIN
         CASE WHEN @SortBy = 'STOCK' AND @SortDir = 'DESC' THEN p.CurrentStock END DESC,
         CASE WHEN @SortBy = 'PRICE' AND @SortDir = 'ASC' THEN p.Price END ASC,
         CASE WHEN @SortBy = 'PRICE' AND @SortDir = 'DESC' THEN p.Price END DESC,
+        CASE WHEN @SortBy = 'CATEGORY' AND @SortDir = 'ASC' THEN c.Name END ASC,
+        CASE WHEN @SortBy = 'CATEGORY' AND @SortDir = 'DESC' THEN c.Name END DESC,
         p.Id ASC
     OFFSET (@Page - 1) * @PageSize ROWS
         FETCH NEXT (@PageSize + 1) ROWS ONLY;
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_GetProduct
+DROP PROCEDURE IF EXISTS sp_GetProduct;
+GO
+CREATE PROCEDURE sp_GetProduct
     @Id INT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    IF @Id IS NULL OR NOT EXISTS (SELECT 1 FROM Product WHERE Id = @Id AND IsActive = 1)
-    BEGIN
-        ;THROW 50001, 'Product not found.', 1;
-    END
 
     SELECT
         p.Id,
@@ -85,11 +90,13 @@ BEGIN
         p.ReorderThreshold,
         p.IsActive
     FROM Product p JOIN Category c ON c.Id = p.CategoryId
-    WHERE p.Id = @Id AND p.IsActive = 1;
+    WHERE p.Id = @Id;
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_GetMovementsPage
+DROP PROCEDURE IF EXISTS sp_GetMovementsPage;
+GO
+CREATE PROCEDURE sp_GetMovementsPage
     @Page INT = 1,
     @PageSize INT = 20,
     @ProductId INT = NULL,
@@ -147,7 +154,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_GetMovementsForProduct
+DROP PROCEDURE IF EXISTS sp_GetMovementsForProduct;
+GO
+CREATE PROCEDURE sp_GetMovementsForProduct
     @ProductId INT
 AS
 BEGIN
@@ -178,7 +187,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_GetNotifications
+DROP PROCEDURE IF EXISTS sp_GetNotifications;
+GO
+CREATE PROCEDURE sp_GetNotifications
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -197,7 +208,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_GetNotificationsForProduct
+DROP PROCEDURE IF EXISTS sp_GetNotificationsForProduct;
+GO
+CREATE PROCEDURE sp_GetNotificationsForProduct
     @ProductId INT
 AS
 BEGIN

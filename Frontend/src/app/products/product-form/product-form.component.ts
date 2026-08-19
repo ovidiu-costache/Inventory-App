@@ -8,10 +8,10 @@ export interface ProductFormData {
     name: string;
     description?: string;
     categoryId: number;
+    newCategoryName?: string;
     unitOfMeasure: string;
     price: number;
     reorderThreshold: number;
-    isActive?: boolean;
 }
 
 @Component({
@@ -25,7 +25,6 @@ export class ProductFormComponent {
     @Input() categories: Category[] = [];
     @Input() isSubmitting = false;
     @Input() submitLabel = 'Save';
-    @Input() showIsActive = false; // Only show 'Active' checkbox on Edit mode
 
     @Output() formSubmit = new EventEmitter<ProductFormData>();
     @Output() formCancel = new EventEmitter<void>();

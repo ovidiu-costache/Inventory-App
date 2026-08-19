@@ -22,8 +22,10 @@ export class ProductDetailComponent implements OnInit {
     isEditing = false;
     isSaving = false;
     isDeleting = false;
+    isRestoring = false;
     saveError = '';
     deleteError = '';
+    restoreError = '';
 
     // Edit form fields
     editData: ProductFormData = {
@@ -33,8 +35,7 @@ export class ProductDetailComponent implements OnInit {
         categoryId: 0,
         unitOfMeasure: '',
         price: 0,
-        reorderThreshold: 0,
-        isActive: true
+        reorderThreshold: 0
     };
 
     private productId = 0;
@@ -102,8 +103,7 @@ export class ProductDetailComponent implements OnInit {
             categoryId: matchingCategoryId,
             unitOfMeasure: this.product.unitOfMeasure,
             price: this.product.price,
-            reorderThreshold: this.product.reorderThreshold,
-            isActive: this.product.isActive
+            reorderThreshold: this.product.reorderThreshold
         };
     }
 
@@ -146,16 +146,34 @@ export class ProductDetailComponent implements OnInit {
         if (submittedData.reorderThreshold !== this.product.reorderThreshold) {
             dto.reorderThreshold = submittedData.reorderThreshold;
         }
-        if (submittedData.isActive !== this.product.isActive) {
-            dto.isActive = submittedData.isActive;
-        }
 
-        // Check if anything changed
-        if (Object.keys(dto).length === 0) {
+        // Check if anything changed (excluding newCategoryName from the check since we handle categoryId manually)
+        if (Object.keys(dto).length === 0 && submittedData.categoryId !== -1) {
             this.isEditing = false;
             this.isSaving = false;
             return;
         }
+
+        if (submittedData.categoryId === -1 && submittedData.newCategoryName) {
+            this.categoriesService.createCategory(submittedData.newCategoryName.trim()).subscribe({
+                next: (cat) => {
+                    submittedData.categoryId = cat.id;
+                    dto.categoryId = cat.id; // Update DTO with the real ID
+                    this.updateProduct(dto);
+                },
+                error: (err) => {
+                    console.error('Error creating category', err);
+                    this.saveError = err.error?.detail || err.error?.title || 'Error creating category. The name might already exist.';
+                    this.isSaving = false;
+                    this.cdr.detectChanges();
+                }
+            });
+        } else {
+            this.updateProduct(dto);
+        }
+    }
+
+    private updateProduct(dto: UpdateProductDto): void {
 
         this.productsService.updateProduct(this.productId, dto).subscribe({
             next: (updated) => {
@@ -190,6 +208,25 @@ export class ProductDetailComponent implements OnInit {
                 console.error('Error deleting product', err);
                 this.deleteError = err.error?.detail || err.error?.title || 'Error deleting product.';
                 this.isDeleting = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    restoreProduct(): void {
+        if (!this.product) return;
+
+        this.restoreError = '';
+        this.isRestoring = true;
+
+        this.productsService.restoreProduct(this.productId).subscribe({
+            next: () => {
+                this.router.navigate(['/products']);
+            },
+            error: (err) => {
+                console.error('Error restoring product', err);
+                this.restoreError = err.error?.detail || err.error?.title || 'Error restoring product.';
+                this.isRestoring = false;
                 this.cdr.detectChanges();
             }
         });

@@ -28,9 +28,15 @@
                     [style.color]="formData.categoryId === 0 ? '#6c757d' : 'inherit'" style="width: 250px;" required>
                     <option [ngValue]="0" disabled hidden>Choose category</option>
                     @for (category of categories; track category.id) {
-                        <option [value]="category.id" style="color: initial;">{{ category.name }}</option>
+                        <option [ngValue]="category.id" style="color: initial;">{{ category.name }}</option>
                     }
+                    <option [ngValue]="-1" style="color: initial; font-weight: bold;">-- Add New Category --</option>
                 </select>
+                @if (formData.categoryId === -1) {
+                    <div style="margin-top: 8px;">
+                        <input type="text" [(ngModel)]="formData.newCategoryName" name="newCategoryName" placeholder="New category name" style="width: 250px;" required>
+                    </div>
+                }
             </td>
         </tr>
         <tr>
@@ -54,14 +60,6 @@
                     name="reorderThreshold" min="0" style="width: 120px;" required>
             </td>
         </tr>
-        @if (showIsActive) {
-        <tr>
-            <td><label for="isActive">Active</label></td>
-            <td>
-                <input id="isActive" type="checkbox" [(ngModel)]="formData.isActive" name="isActive">
-            </td>
-        </tr>
-        }
     </table>
 
     <br>

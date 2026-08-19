@@ -18,6 +18,7 @@ export class ProductsService {
     getProducts(
         page: number,
         pageSize: number,
+        active: boolean,
         categoryId?: number,
         stockState?: string,
         minPrice?: number,
@@ -28,7 +29,8 @@ export class ProductsService {
     ): Observable<GetItemsPage<Product>> {
         let params = new HttpParams()
             .set('page', page.toString())
-            .set('pageSize', pageSize.toString());
+            .set('pageSize', pageSize.toString())
+            .set('active', active.toString());
 
         if (categoryId) params = params.set('categoryId', categoryId.toString());
         if (stockState) params = params.set('stockState', stockState);
@@ -55,5 +57,9 @@ export class ProductsService {
 
     deleteProduct(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
+    restoreProduct(id: number): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/${id}/restore`, {});
     }
 }
