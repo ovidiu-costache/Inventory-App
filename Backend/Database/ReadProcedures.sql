@@ -265,3 +265,16 @@ BEGIN
     END CATCH
 END;
 GO
+
+DROP PROCEDURE IF EXISTS sp_GetAllUsers;
+GO
+CREATE PROCEDURE sp_GetAllUsers
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT Id, Username, FullName
+    FROM AppUser
+    ORDER BY Username ASC;
+END;
+GO

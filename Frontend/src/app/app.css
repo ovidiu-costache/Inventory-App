@@ -1,13 +1,19 @@
 /* Minimal styling, to be updated later */
 
 .navbar {
+  position: fixed;
+  top: 0;
+  left: 30px;
+  right: 30px;
   background-color: #007bff;
+  z-index: 1000;
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 7px 7px;
 }
 
 .navbar-brand {
@@ -35,7 +41,7 @@
 }
 
 .container {
-  padding: 2rem;
+  padding: 6rem 2rem 2rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }

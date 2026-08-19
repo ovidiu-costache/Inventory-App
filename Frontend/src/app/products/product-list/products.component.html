@@ -3,9 +3,9 @@
 
     <!-- Connection error -->
     @if (loadError) {
-    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+    <div class="alert-error">
         Unable to connect to the server. Make sure the backend is running.
-        <button (click)="loadProducts()" style="margin-left: 10px;">Retry</button>
+        <button class="btn-secondary ml-2" (click)="loadProducts()">Retry</button>
     </div>
     }
 
@@ -62,42 +62,41 @@
         </div>
     </div>
 
-    <button routerLink="/products/new"
-        style="padding: 10px 15px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+    <button routerLink="/products/new" class="btn-primary">
         + Add New Product
     </button>
     <br><br>
 
-    <table border="1" width="100%">
+    <table class="modern-table">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Code</th>
-                <th style="cursor: pointer; color: blue;" (click)="toggleSort(SortByEnum.NAME)">
+                <th class="sortable-header" (click)="toggleSort(SortByEnum.NAME)">
                     Name
                     @if (currentSortBy === SortByEnum.NAME) {
                     <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th style="cursor: pointer; color: blue;" (click)="toggleSort(SortByEnum.PRICE)">
+                <th class="sortable-header" (click)="toggleSort(SortByEnum.PRICE)">
                     Price
                     @if (currentSortBy === SortByEnum.PRICE) {
                     <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th style="cursor: pointer; color: blue;" (click)="toggleSort(SortByEnum.STOCK)">
+                <th class="sortable-header" (click)="toggleSort(SortByEnum.STOCK)">
                     Stock
                     @if (currentSortBy === SortByEnum.STOCK) {
                     <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th style="cursor: pointer; color: blue;" (click)="toggleSort(SortByEnum.CATEGORY)">
+                <th class="sortable-header" (click)="toggleSort(SortByEnum.CATEGORY)">
                     Category
                     @if (currentSortBy === SortByEnum.CATEGORY) {
                     <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th>U.o.M</th>
+                <th>Unit</th>
                 <th>Reorder Threshold</th>
             </tr>
         </thead>
@@ -105,15 +104,15 @@
             @for (p of products; track p.id) {
             <tr>
                 <td>{{ p.id }}</td>
-                <td><a [routerLink]="['/products', p.id]" style="color: blue; cursor: pointer;">
+                <td><a [routerLink]="['/products', p.id]" class="clickable-link">
                         <strong>{{ p.code}}</strong>
                     </a></td>
                 <td>{{ p.name }}</td>
                 <td>{{ p.price | number:'1.2-2' }}</td>
-                <td style="text-align: center;">{{ p.currentStock }}</td>
+                <td class="text-center">{{ p.currentStock }}</td>
                 <td>{{ p.category }}</td>
                 <td>{{ p.unitOfMeasure }}</td>
-                <td style="text-align: center;">{{ p.reorderThreshold }}</td>
+                <td class="text-center">{{ p.reorderThreshold }}</td>
             </tr>
             }
             @if (products.length === 0 && !loadError) {
@@ -124,9 +123,9 @@
         </tbody>
     </table>
 
-    <br>
-
-    <button (click)="prevPage()" [disabled]="page === 1">Previous</button>
-    <span> Page {{ page }} </span>
-    <button (click)="nextPage()" [disabled]="!hasMore">Next</button>
+    <div class="pagination-container">
+        <button (click)="prevPage()" [disabled]="page === 1" class="btn-outline">Previous</button>
+        <span class="pagination-info">Page {{ page }}</span>
+        <button (click)="nextPage()" [disabled]="!hasMore" class="btn-outline">Next</button>
+    </div>
 </div>

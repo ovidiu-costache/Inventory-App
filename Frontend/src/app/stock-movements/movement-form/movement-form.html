@@ -2,47 +2,43 @@
   <h2>Add stock movement</h2>
 
   <!-- Error message (from frontend validation or backend) -->
-  <div *ngIf="errorMessage" style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+  <div *ngIf="errorMessage" class="alert-error">
     <strong>Error:</strong> {{ errorMessage }}
   </div>
 
   <!-- novalidate = let Angular/backend handle validation, not the browser -->
   <form (ngSubmit)="onSubmit()" novalidate>
-    <div>
-      <label>Product ID:</label><br>
-      <input type="number" [(ngModel)]="model.productId" name="productId">
-    </div>
+    <table class="form-table">
+      <tr>
+        <td><label>Product ID</label></td>
+        <td><input type="number" [(ngModel)]="model.productId" name="productId" class="form-input-number"></td>
+      </tr>
+      <tr>
+        <td><label>Movement type</label></td>
+        <td>
+          <select [(ngModel)]="model.movementTypeId" name="movementTypeId" class="form-input-short">
+            <option [ngValue]="1">IN</option>
+            <option [ngValue]="2">OUT</option>
+            <option [ngValue]="3">ADJUSTMENT</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Quantity</label></td>
+        <td><input type="number" [(ngModel)]="model.quantity" name="quantity" class="form-input-number"></td>
+      </tr>
+      <tr>
+        <td><label>Reason (optional)</label></td>
+        <td><input type="text" [(ngModel)]="model.reason" name="reason" class="form-input"></td>
+      </tr>
+      <tr>
+        <td><label>Reference Code (optional)</label></td>
+        <td><input type="text" [(ngModel)]="model.referenceCode" name="referenceCode" class="form-input"></td>
+      </tr>
+    </table>
     <br>
 
-    <div>
-      <label>Movement type:</label><br>
-      <select [(ngModel)]="model.movementTypeId" name="movementTypeId">
-        <option [ngValue]="1">IN</option>
-        <option [ngValue]="2">OUT</option>
-        <option [ngValue]="3">ADJUSTMENT</option>
-      </select>
-    </div>
-    <br>
-
-    <div>
-      <label>Quantity:</label><br>
-      <input type="number" [(ngModel)]="model.quantity" name="quantity">
-    </div>
-    <br>
-
-    <div>
-      <label>Reason (optional):</label><br>
-      <input type="text" [(ngModel)]="model.reason" name="reason">
-    </div>
-    <br>
-
-    <div>
-      <label>Reference Code (optional):</label><br>
-      <input type="text" [(ngModel)]="model.referenceCode" name="referenceCode">
-    </div>
-    <br>
-
-    <button type="submit">Save</button>
-    <a routerLink="/movements" style="margin-left: 10px;">Cancel</a>
+    <button type="submit" class="btn-primary">Save</button>
+    <a routerLink="/movements" class="btn-secondary ml-2">Cancel</a>
   </form>
 </div>

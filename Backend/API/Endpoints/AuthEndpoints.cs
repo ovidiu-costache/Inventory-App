@@ -20,6 +20,12 @@ public static class AuthEndpoints
             return Results.Ok(user);
         });
 
+        group.MapGet("/users", async (DbServices db) =>
+        {
+            var users = await db.GetAllUsersAsync();
+            return Results.Ok(users);
+        });
+
         return group;
     }
 }

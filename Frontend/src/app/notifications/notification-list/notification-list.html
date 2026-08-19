@@ -1,13 +1,13 @@
 <div>
   <h2>Low Stock Alerts</h2>
 
-  <div *ngIf="notifications.length === 0" style="padding: 10px; background-color: #e6ffe6; border: 1px solid #00cc00; color: #006600; border-radius: 4px;">
+  <div *ngIf="notifications.length === 0" class="alert-success">
     No current notifications. All products have sufficient stock.
   </div>
 
-  <table *ngIf="notifications.length > 0" border="1" cellspacing="0" cellpadding="5" width="100%">
+  <table *ngIf="notifications.length > 0" class="modern-table">
     <thead>
-      <tr style="background-color: #ffcccc;">
+      <tr class="alert-warning">
         <th>Trigger Date</th>
         <th>Product Code</th>
         <th>Product Name</th>
@@ -21,10 +21,10 @@
         <td>{{ n.triggeredAt | date:'medium' }}</td>
         <td><strong>{{ n.productCode }}</strong></td>
         <td>{{ n.productName }}</td>
-        <td style="color: red; font-weight: bold;">{{ n.currentStock }}</td>
+        <td class="text-danger fw-bold">{{ n.currentStock }}</td>
         <td>{{ n.reorderThreshold }}</td>
         <td>
-          <button (click)="resolveNotification(n.id)" style="cursor: pointer;">
+          <button (click)="resolveNotification(n.id)" class="btn-success">
             Mark as resolved
           </button>
         </td>

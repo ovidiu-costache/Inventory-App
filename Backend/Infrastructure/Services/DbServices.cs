@@ -306,4 +306,12 @@ public class DbServices {
 
         return results.First();
     }
+
+    public async Task<IReadOnlyList<UserDto>> GetAllUsersAsync()
+    {
+        // sp_GetAllUsers
+        return await _db.Database.SqlQueryRaw<UserDto>(
+            "EXEC sp_GetAllUsers"
+        ).ToListAsync();
+    }
 }

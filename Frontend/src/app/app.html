@@ -4,15 +4,15 @@
     <li><a routerLink="/products" routerLinkActive="active">Products</a></li>
     <li><a routerLink="/movements" routerLinkActive="active">Stock Movements</a></li>
     <li>
-      <a routerLink="/notifications" routerLinkActive="active" style="display: flex; align-items: center; gap: 5px;">
+      <a routerLink="/notifications" routerLinkActive="active" class="flex-center-gap">
         Notifications
-        <span *ngIf="unreadCount > 0" style="background-color: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold;">
+        <span *ngIf="unreadCount > 0" class="badge-danger">
           {{ unreadCount }}
         </span>
       </a>
     </li>
     <li>
-      <button (click)="logout()" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: 16px;">
+      <button (click)="logout()" class="btn-link-white">
         Logout ({{ currentUser.username }})
       </button>
     </li>

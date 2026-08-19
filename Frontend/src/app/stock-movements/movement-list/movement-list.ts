@@ -2,8 +2,10 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { StockMovementService } from '../stock-movement';
+import { StockMovementService } from '../../services/stock-movement.service';
 import { StockMovement as StockMovementModel } from '../../models/stock-movement.model';
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-movement-list',
@@ -13,6 +15,7 @@ import { StockMovement as StockMovementModel } from '../../models/stock-movement
 })
 export class MovementListComponent implements OnInit {
   movements: StockMovementModel[] = [];
+  users: User[] = [];
   page = 1;
   pageSize = 10;
   hasMore = false;
@@ -31,11 +34,23 @@ export class MovementListComponent implements OnInit {
 
   constructor(
     private movementService: StockMovementService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.loadUsers();
     this.loadMovements();
+  }
+
+  loadUsers(): void {
+    this.authService.getAllUsers().subscribe({
+      next: (users) => {
+        this.users = users;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Failed to load users', err)
+    });
   }
 
   loadMovements(): void {

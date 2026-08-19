@@ -2,58 +2,77 @@
   <h2>Stock Movements History</h2>
 
   <!-- Connection error -->
-  <div *ngIf="loadError" style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+  <div *ngIf="loadError" class="alert-error">
     Cannot connect to server. Make sure the backend is running.
-    <button (click)="loadMovements()" style="margin-left: 10px;">Retry</button>
+    <button class="btn-secondary ml-2" (click)="loadMovements()">Retry</button>
   </div>
 
   <!-- Filters -->
-  <div style="margin-bottom: 10px;">
-    <label>Movement Type: </label>
-    <select [(ngModel)]="filterType" style="margin-right: 10px;">
-      <option value="">All</option>
-      <option value="INTRARE">In</option>
-      <option value="IESIRE">Out</option>
-      <option value="AJUSTARE">Adjustment</option>
-    </select>
+  <div class="filter-bar">
+    <div class="filter-fields">
+      <div class="filter-group">
+        <label>Movement Type</label>
+        <select [(ngModel)]="filterType">
+          <option value="">All</option>
+          <option value="INTRARE">In</option>
+          <option value="IESIRE">Out</option>
+          <option value="AJUSTARE">Adjustment</option>
+        </select>
+      </div>
 
-    <label>Product ID: </label>
-    <input type="number" [(ngModel)]="filterProductId" style="width: 60px; margin-right: 10px;">
+      <div class="filter-group">
+        <label>Product ID</label>
+        <input type="number" [(ngModel)]="filterProductId">
+      </div>
 
-    <label>User ID: </label>
-    <input type="number" [(ngModel)]="filterUserId" style="width: 60px; margin-right: 10px;">
+      <div class="filter-group">
+        <label>User</label>
+        <select [(ngModel)]="filterUserId">
+          <option [ngValue]="null">All users</option>
+          @for (u of users; track u.id){
+            <option [ngValue]="u.id">{{ u.username }}</option>
+          }
+        </select>
+      </div>
 
-    <label>From: </label>
-    <input type="date" [(ngModel)]="filterFromDate" style="margin-right: 10px;">
+      <div class="filter-group">
+        <label>From</label>
+        <input type="date" [(ngModel)]="filterFromDate">
+      </div>
 
-    <label>To: </label>
-    <input type="date" [(ngModel)]="filterToDate" style="margin-right: 10px;">
+      <div class="filter-group">
+        <label>To</label>
+        <input type="date" [(ngModel)]="filterToDate">
+      </div>
+    </div>
 
-    <button (click)="applyFilters()">Filter</button>
-    <button (click)="clearFilters()" style="margin-left: 5px;">Reset</button>
+    <div class="filter-actions">
+      <button class="btn-reset" (click)="clearFilters()">Reset</button>
+      <button class="btn-filter" (click)="applyFilters()">Apply Filter</button>
+    </div>
   </div>
 
-  <button routerLink="/movements/new" style="padding: 10px 15px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+  <button routerLink="/movements/new" class="btn-primary">
     + Add new movement
   </button>
   <br><br>
 
-  <table border="1" cellspacing="0" cellpadding="5" width="100%">
+  <table class="modern-table">
     <thead>
       <tr>
         <th>ID</th>
         <th>Product Code</th>
-        <th style="cursor: pointer; color: blue;" (click)="toggleSort('PRODUCT_NAME')">
+        <th class="sortable-header" (click)="toggleSort('PRODUCT_NAME')">
           Product Name
           <span *ngIf="currentSortBy === 'PRODUCT_NAME'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
         </th>
         <th>Type</th>
-        <th style="cursor: pointer; color: blue;" (click)="toggleSort('QUANTITY')">
+        <th class="sortable-header" (click)="toggleSort('QUANTITY')">
           Quantity
           <span *ngIf="currentSortBy === 'QUANTITY'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
         </th>
         <th>Resulting Stock</th>
-        <th style="cursor: pointer; color: blue;" (click)="toggleSort('CREATED_AT')">
+        <th class="sortable-header" (click)="toggleSort('CREATED_AT')">
           Date
           <span *ngIf="currentSortBy === 'CREATED_AT'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
         </th>
@@ -77,9 +96,9 @@
     </tbody>
   </table>
 
-  <br>
-
-  <button (click)="prevPage()" [disabled]="page === 1">Previous</button>
-  <span> Page {{ page }} </span>
-  <button (click)="nextPage()" [disabled]="!hasMore">Next</button>
+  <div class="pagination-container">
+    <button (click)="prevPage()" [disabled]="page === 1" class="btn-outline">Previous</button>
+    <span class="pagination-info">Page {{ page }}</span>
+    <button (click)="nextPage()" [disabled]="!hasMore" class="btn-outline">Next</button>
+  </div>
 </div>

@@ -1,9 +1,9 @@
 <div>
     <!-- Loading error -->
     @if (loadError) {
-    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+    <div class="alert-error">
         Could not load product. Make sure the backend is running.
-        <button (click)="loadProduct()" style="margin-left: 10px;">Retry</button>
+        <button class="btn-secondary ml-2" (click)="loadProduct()">Retry</button>
     </div>
     }
 
@@ -12,24 +12,24 @@
 
     <!-- Save / Delete errors -->
     @if (saveError) {
-    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+    <div class="alert-error">
         {{ saveError }}
     </div>
     }
     @if (deleteError) {
-    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+    <div class="alert-error">
         {{ deleteError }}
     </div>
     }
     @if (restoreError) {
-    <div style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+    <div class="alert-error">
         {{ restoreError }}
     </div>
     }
 
     <!-- VIEW MODE -->
     @if (!isEditing) {
-    <table cellpadding="6">
+    <table class="form-table">
         <tr>
             <td><label>ID</label></td>
             <td>{{ product.id }}</td>
@@ -74,14 +74,12 @@
 
     <br>
 
-    <button (click)="toggleEdit()"
-        style="padding: 10px 20px; font-weight: bold; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px;">
+    <button (click)="toggleEdit()" class="btn-primary">
         Edit
     </button>
 
     @if (product.isActive) {
-    <button (click)="confirmDelete()" [disabled]="isDeleting"
-        style="padding: 10px 20px; margin-left: 10px; font-weight: bold; cursor: pointer; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-size: 14px;">
+    <button (click)="confirmDelete()" [disabled]="isDeleting" class="btn-danger ml-2">
         @if (isDeleting) {
         Deleting...
         } @else {
@@ -89,8 +87,7 @@
         }
     </button>
     } @else {
-    <button (click)="restoreProduct()" [disabled]="isRestoring"
-        style="padding: 10px 20px; margin-left: 10px; font-weight: bold; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 14px;">
+    <button (click)="restoreProduct()" [disabled]="isRestoring" class="btn-success ml-2">
         @if (isRestoring) {
         Restoring...
         } @else {
@@ -99,8 +96,7 @@
     </button>
     }
 
-    <button (click)="goBack()"
-        style="padding: 10px 20px; margin-left: 10px; cursor: pointer; background-color: #8e97a0; color: white; border: none; border-radius: 4px; font-size: 14px;">
+    <button (click)="goBack()" class="btn-secondary ml-2">
         Back to list
     </button>
     }

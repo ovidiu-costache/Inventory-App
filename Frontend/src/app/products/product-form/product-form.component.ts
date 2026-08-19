@@ -18,7 +18,8 @@ export interface ProductFormData {
     selector: 'app-product-form',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    templateUrl: './product-form.component.html'
+    templateUrl: './product-form.component.html',
+    styleUrl: './product-form.component.css'
 })
 export class ProductFormComponent {
     @Input() formData!: ProductFormData;

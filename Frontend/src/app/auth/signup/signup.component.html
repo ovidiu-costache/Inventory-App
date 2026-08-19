@@ -1,37 +1,37 @@
-<div style="max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+<div class="auth-container">
   <h2>Sign Up</h2>
 
-  <div *ngIf="errorMessage" style="color: red; border: 1px solid red; padding: 8px; margin-bottom: 10px;">
+  <div *ngIf="errorMessage" class="alert-error">
     <strong>Error:</strong> {{ errorMessage }}
   </div>
 
   <form (ngSubmit)="onSubmit()" novalidate>
-    <div style="margin-bottom: 15px;">
-      <label for="username">Username:</label><br>
-      <input type="text" id="username" name="username" [(ngModel)]="model.username" style="width: 100%; padding: 8px;" required>
+    <div class="mb-3">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" [(ngModel)]="model.username" class="auth-input" required>
     </div>
 
-    <div style="margin-bottom: 15px;">
-      <label for="fullName">Full Name:</label><br>
-      <input type="text" id="fullName" name="fullName" [(ngModel)]="model.fullName" style="width: 100%; padding: 8px;" required>
+    <div class="mb-3">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="fullName" [(ngModel)]="model.fullName" class="auth-input" required>
     </div>
 
-    <div style="margin-bottom: 15px;">
-      <label for="password">Password:</label><br>
-      <input type="password" id="password" name="password" [(ngModel)]="model.password" style="width: 100%; padding: 8px;" required>
+    <div class="mb-3">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" [(ngModel)]="model.password" class="auth-input" required>
     </div>
 
-    <div style="margin-bottom: 15px;">
-      <label for="confirmPassword">Confirm Password:</label><br>
-      <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="model.confirmPassword" style="width: 100%; padding: 8px;" required>
+    <div class="mb-3">
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="model.confirmPassword" class="auth-input" required>
     </div>
 
-    <button type="submit" [disabled]="isSubmitting" style="width: 100%; padding: 10px; font-weight: bold; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 4px;">
+    <button type="submit" [disabled]="isSubmitting" class="btn-success w-100">
       {{ isSubmitting ? 'Signing up...' : 'Sign Up' }}
     </button>
   </form>
 
-  <div style="margin-top: 15px; text-align: center;">
+  <div class="mt-3 text-center">
     Already have an account? <a routerLink="/login">Log In here</a>
   </div>
 </div>

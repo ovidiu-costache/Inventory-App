@@ -1,0 +1,22 @@
+.form-table {
+    margin-bottom: 20px;
+}
+.form-input {
+    width: 250px;
+}
+.form-input-short {
+    width: 150px;
+}
+.form-input-number {
+    width: 120px;
+}
+.form-textarea {
+    width: 250px;
+    height: 60px;
+}
+.placeholder-color {
+    color: #6c757d;
+}
+.normal-color {
+    color: inherit;
+}
