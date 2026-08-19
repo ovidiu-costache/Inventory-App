@@ -1,4 +1,4 @@
-<nav class="navbar">
+<nav class="navbar" *ngIf="currentUser">
   <div class="navbar-brand">Inventory App</div>
   <ul class="navbar-links">
     <li><a routerLink="/products" routerLinkActive="active">Products</a></li>
@@ -10,6 +10,11 @@
           {{ unreadCount }}
         </span>
       </a>
+    </li>
+    <li>
+      <button (click)="logout()" style="background: none; border: none; color: white; cursor: pointer; text-decoration: underline; font-size: 16px;">
+        Logout ({{ currentUser.username }})
+      </button>
     </li>
   </ul>
 </nav>

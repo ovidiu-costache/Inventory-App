@@ -3,6 +3,8 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { NotificationService } from './services/notification.service';
+import { AuthService } from './services/auth.service';
+import { User } from './models/user.model';
 
 @Component({
   selector: 'app-root',
@@ -15,27 +17,45 @@ export class App implements OnInit, OnDestroy {
   protected readonly title = 'Frontend';
   
   unreadCount = 0;
-  private subscription: Subscription = new Subscription();
+  currentUser: User | null = null;
+  private notificationSub: Subscription = new Subscription();
+  private authSub: Subscription = new Subscription();
 
   constructor(
     private notificationService: NotificationService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to notification updates for the badge
-    this.subscription = this.notificationService.notifications$.subscribe(notifications => {
-      this.unreadCount = notifications.length;
+    // Subscribe to auth state
+    this.authSub = this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      
+      // Only fetch notifications if user is logged in
+      if (this.currentUser) {
+        this.notificationService.fetchNotifications();
+      }
       this.cdr.detectChanges();
     });
 
-    // Initial fetch
-    this.notificationService.fetchNotifications();
+    // Subscribe to notification updates for the badge
+    this.notificationSub = this.notificationService.notifications$.subscribe(notifications => {
+      this.unreadCount = notifications.length;
+      this.cdr.detectChanges();
+    });
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.notificationSub) {
+      this.notificationSub.unsubscribe();
+    }
+    if (this.authSub) {
+      this.authSub.unsubscribe();
     }
   }
 }
