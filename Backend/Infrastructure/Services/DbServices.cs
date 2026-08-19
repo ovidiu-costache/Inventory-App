@@ -17,16 +17,17 @@ public class DbServices {
     }
 
     public async Task<(IReadOnlyList<ProductDto>, bool)> GetProductsPageAsync(
-        int page, int pageSize, int? categoryId, string? stockState, decimal? minPrice, decimal? maxPrice,
-        string? search, string? sortBy, string sortDir)
+        int page, int pageSize, bool active, int? categoryId, string? stockState, 
+        decimal? minPrice, decimal? maxPrice, string? search, string? sortBy, string sortDir)
     {
         // SQL sp_GetProductsPage
         var items = await _db.Database.SqlQueryRaw<ProductDto>(
                 @"EXEC sp_GetProductsPage
-                    @Page, @PageSize, @CategoryId, @StockState,
+                    @Page, @PageSize, @Active, @CategoryId, @StockState,
                     @MinPrice, @MaxPrice, @Search, @SortBy, @SortDir",
                 new SqlParameter("@Page", page),
                 new SqlParameter("@PageSize", pageSize),
+                new SqlParameter("@Active", active),
                 new SqlParameter("@CategoryId", (object?)categoryId ?? DBNull.Value),
                 new SqlParameter("@StockState", (object?)stockState ?? DBNull.Value),
                 new SqlParameter("@MinPrice", (object?)minPrice ?? DBNull.Value),

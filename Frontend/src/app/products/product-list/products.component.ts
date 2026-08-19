@@ -7,15 +7,19 @@ import { Product } from '../../models/product.model';
 import { SortByEnum } from '../enums/sort-by.enum';
 import { SortDirEnum } from '../enums/sort-dir.enum';
 import { StockStateEnum } from '../enums/stock-state.enum';
+import { CategoriesService } from '../../services/categories.service';
+import { Category } from '../../models/category.model';
 
 @Component({
     selector: 'app-products',
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule],
-    templateUrl: './products.component.html'
+    templateUrl: './products.component.html',
+    styleUrls: ['./products.component.css']
 })
 export class ProductsComponent implements OnInit {
     products: Product[] = [];
+    categories: Category[] = [];
     page = 1;
     pageSize = 10;
     hasMore = false;
@@ -27,35 +31,38 @@ export class ProductsComponent implements OnInit {
     StockStateEnum = StockStateEnum;
 
     // Filter fields
-    filterSearch = '';
-    filterCategoryId: number | null = null;
-    filterStockState: StockStateEnum | '' = '';
-    filterMinPrice: number | null = null;
-    filterMaxPrice: number | null = null;
+    filterActive: boolean = true;
+    filterSearch: string | undefined = undefined;
+    filterCategoryId: number | undefined = undefined;
+    filterStockState: StockStateEnum | undefined = undefined;
+    filterMinPrice: number | undefined = undefined;
+    filterMaxPrice: number | undefined = undefined;
 
     // Sort fields
     currentSortBy: SortByEnum = SortByEnum.NAME;
     currentSortDir: SortDirEnum = SortDirEnum.ASC;
 
-    constructor(private productsService: ProductsService, private cdr: ChangeDetectorRef) { }
+    constructor(private productsService: ProductsService, 
+        private categoriesService: CategoriesService,
+        private cdr: ChangeDetectorRef) { }
 
     ngOnInit(): void {
         this.loadProducts();
+        this.categoriesService.getCategories().subscribe({
+            next: (data) => {
+                this.categories = data;
+                this.cdr.detectChanges();
+            }
+        });
     }
 
     loadProducts(): void {
         this.loadError = false;
 
-        const categoryId = this.filterCategoryId || undefined;
-        const stockState = this.filterStockState || undefined;
-        const minPrice = this.filterMinPrice ?? undefined;
-        const maxPrice = this.filterMaxPrice ?? undefined;
-        const search = this.filterSearch || undefined;
-
         this.productsService.getProducts(
-            this.page, this.pageSize, categoryId, stockState,
-            minPrice, maxPrice, search,
-            this.currentSortBy, this.currentSortDir
+            this.page, this.pageSize,  this.filterActive, this.filterCategoryId,
+            this.filterStockState, this.filterMinPrice, this.filterMaxPrice,
+            this.filterSearch, this.currentSortBy, this.currentSortDir
         )
             .subscribe({
                 next: (response) => {
@@ -92,11 +99,12 @@ export class ProductsComponent implements OnInit {
 
     // Clear all filters and reload
     clearFilters(): void {
-        this.filterSearch = '';
-        this.filterCategoryId = null;
-        this.filterStockState = '';
-        this.filterMinPrice = null;
-        this.filterMaxPrice = null;
+        this.filterSearch = undefined;
+        this.filterCategoryId = undefined;
+        this.filterStockState = undefined;
+        this.filterActive = true;
+        this.filterMinPrice = undefined;
+        this.filterMaxPrice = undefined;
         this.currentSortBy = SortByEnum.NAME;
         this.currentSortDir = SortDirEnum.ASC;
         this.page = 1;

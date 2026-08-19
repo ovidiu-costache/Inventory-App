@@ -33,8 +33,7 @@ export class ProductDetailComponent implements OnInit {
         categoryId: 0,
         unitOfMeasure: '',
         price: 0,
-        reorderThreshold: 0,
-        isActive: true
+        reorderThreshold: 0
     };
 
     private productId = 0;
@@ -102,8 +101,7 @@ export class ProductDetailComponent implements OnInit {
             categoryId: matchingCategoryId,
             unitOfMeasure: this.product.unitOfMeasure,
             price: this.product.price,
-            reorderThreshold: this.product.reorderThreshold,
-            isActive: this.product.isActive
+            reorderThreshold: this.product.reorderThreshold
         };
     }
 
@@ -145,9 +143,6 @@ export class ProductDetailComponent implements OnInit {
         }
         if (submittedData.reorderThreshold !== this.product.reorderThreshold) {
             dto.reorderThreshold = submittedData.reorderThreshold;
-        }
-        if (submittedData.isActive !== this.product.isActive) {
-            dto.isActive = submittedData.isActive;
         }
 
         // Check if anything changed

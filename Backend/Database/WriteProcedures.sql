@@ -1,4 +1,6 @@
-CREATE OR ALTER PROCEDURE sp_InsertProduct
+DROP PROCEDURE IF EXISTS sp_InsertProduct;
+GO
+CREATE PROCEDURE sp_InsertProduct
     @Code NVARCHAR(50),
     @Name NVARCHAR(100),
     @Description NVARCHAR(500),
@@ -62,7 +64,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_UpdateProduct
+DROP PROCEDURE IF EXISTS sp_UpdateProduct;
+GO
+CREATE PROCEDURE sp_UpdateProduct
     @Id INT,
     @Code NVARCHAR(50) = NULL,
     @Name NVARCHAR(100) = NULL,
@@ -130,7 +134,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_SoftDeleteProduct
+DROP PROCEDURE IF EXISTS sp_SoftDeleteProduct;
+GO
+CREATE PROCEDURE sp_SoftDeleteProduct
     @Id INT
 AS
 BEGIN
@@ -162,7 +168,9 @@ GO
 
 GO
 
-CREATE OR ALTER PROCEDURE sp_InsertStockMovement
+DROP PROCEDURE IF EXISTS sp_InsertStockMovement;
+GO
+CREATE PROCEDURE sp_InsertStockMovement
     @ProductId INT,
     @MovementTypeId INT,
     @Quantity DECIMAL(18,2),
@@ -294,7 +302,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_ResolveNotification
+DROP PROCEDURE IF EXISTS sp_ResolveNotification;
+GO
+CREATE PROCEDURE sp_ResolveNotification
     @Id INT
 AS
 BEGIN

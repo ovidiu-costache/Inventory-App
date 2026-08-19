@@ -10,27 +10,56 @@
     }
 
     <!-- Filters -->
-    <div style="margin-bottom: 20px;">
-        <label>Search: </label>
-        <input type="text" [(ngModel)]="filterSearch" placeholder="Name or product code..."
-            style="width: 180px; margin-right: 10px;">
+    <div class="filter-bar">
+        <div class="filter-fields">
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" [(ngModel)]="filterSearch" placeholder="Name or product code...">
+            </div>
 
-        <label>Stock state: </label>
-        <select [(ngModel)]="filterStockState" style="margin-right: 10px;">
-            <option value="">All</option>
-            <option [value]="StockStateEnum.IN_STOCK">In Stock</option>
-            <option [value]="StockStateEnum.LOW_STOCK">Low Stock</option>
-            <option [value]="StockStateEnum.OUT_OF_STOCK">Out of Stock</option>
-        </select>
+            <div class="filter-group">
+                <label>Category</label>
+                <select [(ngModel)]="filterCategoryId">
+                    <option [ngValue]="undefined">All</option>
+                    @for (c of categories; track c.id) {
+                        <option [ngValue]="c.id">{{ c.name }}</option>
+                    }
+                </select>
+            </div>
 
-        <label>Min price: </label>
-        <input type="number" [(ngModel)]="filterMinPrice" style="width: 80px; margin-right: 10px;">
+            <div class="filter-group">
+                <label>Stock state</label>
+                <select [(ngModel)]="filterStockState">
+                    <option [ngValue]="undefined">All</option>
+                    <option [ngValue]="StockStateEnum.IN_STOCK">In Stock</option>
+                    <option [ngValue]="StockStateEnum.LOW_STOCK">Low Stock</option>
+                    <option [ngValue]="StockStateEnum.OUT_OF_STOCK">Out of Stock</option>
+                </select>
+            </div>
 
-        <label>Max price: </label>
-        <input type="number" [(ngModel)]="filterMaxPrice" style="width: 80px; margin-right: 10px;">
+            <div class="filter-group">
+                <label>Active</label>
+                <select [(ngModel)]="filterActive">
+                    <option [ngValue]="true">Yes</option>
+                    <option [ngValue]="false">No</option>
+                </select>
+            </div>
 
-        <button (click)="applyFilters()">Filter</button>
-        <button (click)="clearFilters()" style="margin-left: 5px;">Reset</button>
+            <div class="filter-group">
+                <label>Min price</label>
+                <input type="number" [(ngModel)]="filterMinPrice">
+            </div>
+
+            <div class="filter-group">
+                <label>Max price</label>
+                <input type="number" [(ngModel)]="filterMaxPrice">
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button class="btn-reset" (click)="clearFilters()">Reset</button>
+            <button class="btn-filter" (click)="applyFilters()">Apply Filter</button>
+        </div>
     </div>
 
     <button routerLink="/products/new"
@@ -39,7 +68,7 @@
     </button>
     <br><br>
 
-    <table border="1" cellspacing="0" cellpadding="5" width="100%">
+    <table border="1" width="100%">
         <thead>
             <tr>
                 <th>ID</th>
@@ -62,10 +91,14 @@
                     <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
                     }
                 </th>
-                <th>Category</th>
+                <th style="cursor: pointer; color: blue;" (click)="toggleSort(SortByEnum.CATEGORY)">
+                    Category
+                    @if (currentSortBy === SortByEnum.CATEGORY) {
+                    <span>{{ currentSortDir === SortDirEnum.ASC ? '▲' : '▼' }}</span>
+                    }
+                </th>
                 <th>U.o.M</th>
                 <th>Reorder Threshold</th>
-                <th>Active</th>
             </tr>
         </thead>
         <tbody>
@@ -81,7 +114,6 @@
                 <td>{{ p.category }}</td>
                 <td>{{ p.unitOfMeasure }}</td>
                 <td style="text-align: center;">{{ p.reorderThreshold }}</td>
-                <td style="text-align: center;">{{ p.isActive ? 'Yes' : 'No' }}</td>
             </tr>
             }
             @if (products.length === 0 && !loadError) {
