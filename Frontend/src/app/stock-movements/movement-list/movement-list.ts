@@ -114,4 +114,13 @@ export class MovementListComponent implements OnInit {
       this.loadMovements();
     }
   }
+
+  translateType(type: string): string {
+    switch (type) {
+      case 'INTRARE': return 'IN';
+      case 'IESIRE': return 'OUT';
+      case 'AJUSTARE': return 'ADJUSTMENT';
+      default: return type;
+    }
+  }
 }
