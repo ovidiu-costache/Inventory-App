@@ -190,6 +190,20 @@ public class DbServices {
             new SqlParameter("@Id", id));
     }
 
+    public async Task RestoreProductAsync(int id)
+    {
+        // Basic validation
+        if (id <= 0)
+        {
+            throw new ArgumentException("Invalid product ID.");
+        }
+
+        // SQL sp_RestoreProduct
+        await _db.Database.ExecuteSqlRawAsync(
+            "EXEC sp_RestoreProduct @Id",
+            new SqlParameter("@Id", id));
+    }
+
     public async Task<StockMovementDto> CreateStockMovementAsync(CreateStockMovementDto dto)
     {
         // Basic validation

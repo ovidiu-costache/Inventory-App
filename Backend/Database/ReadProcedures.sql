@@ -1,3 +1,6 @@
+USE InventoryAppDb;
+GO
+
 DROP PROCEDURE IF EXISTS sp_GetProductsPage;
 GO
 CREATE PROCEDURE sp_GetProductsPage
@@ -74,11 +77,6 @@ CREATE PROCEDURE sp_GetProduct
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    IF @Id IS NULL OR NOT EXISTS (SELECT 1 FROM Product WHERE Id = @Id AND IsActive = 1)
-    BEGIN
-        ;THROW 50001, 'Product not found.', 1;
-    END
 
     SELECT
         p.Id,

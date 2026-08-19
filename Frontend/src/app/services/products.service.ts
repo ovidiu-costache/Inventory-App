@@ -58,4 +58,8 @@ export class ProductsService {
     deleteProduct(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
+
+    restoreProduct(id: number): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/${id}/restore`, {});
+    }
 }

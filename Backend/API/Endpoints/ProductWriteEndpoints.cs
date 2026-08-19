@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Infrastructure.Services;
 
 namespace API.Endpoints
@@ -31,6 +31,15 @@ namespace API.Endpoints
                 await db.DeleteProductAsync(id);
 
                 // Return 204 No Content for a successful delete operation
+                return Results.NoContent();
+            });
+
+            // Restore a soft-deleted product
+            group.MapPatch("/{id:int}/restore", async (int id, DbServices db) =>
+            {
+                await db.RestoreProductAsync(id);
+
+                // Return 204 No Content for a successful restore operation
                 return Results.NoContent();
             });
 

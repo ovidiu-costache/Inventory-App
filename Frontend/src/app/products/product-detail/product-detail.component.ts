@@ -22,8 +22,10 @@ export class ProductDetailComponent implements OnInit {
     isEditing = false;
     isSaving = false;
     isDeleting = false;
+    isRestoring = false;
     saveError = '';
     deleteError = '';
+    restoreError = '';
 
     // Edit form fields
     editData: ProductFormData = {
@@ -185,6 +187,25 @@ export class ProductDetailComponent implements OnInit {
                 console.error('Error deleting product', err);
                 this.deleteError = err.error?.detail || err.error?.title || 'Error deleting product.';
                 this.isDeleting = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    restoreProduct(): void {
+        if (!this.product) return;
+
+        this.restoreError = '';
+        this.isRestoring = true;
+
+        this.productsService.restoreProduct(this.productId).subscribe({
+            next: () => {
+                this.router.navigate(['/products']);
+            },
+            error: (err) => {
+                console.error('Error restoring product', err);
+                this.restoreError = err.error?.detail || err.error?.title || 'Error restoring product.';
+                this.isRestoring = false;
                 this.cdr.detectChanges();
             }
         });
