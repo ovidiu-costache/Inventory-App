@@ -239,8 +239,7 @@ GO
 DROP PROCEDURE IF EXISTS sp_LoginUser;
 GO
 CREATE PROCEDURE sp_LoginUser
-    @Username NVARCHAR(50),
-    @Password NVARCHAR(255)
+    @Username NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -248,17 +247,18 @@ BEGIN
     BEGIN TRY
         DECLARE @UserId INT;
         DECLARE @FullName NVARCHAR(100);
+        DECLARE @PasswordHash NVARCHAR(255);
 
-        SELECT @UserId = Id, @FullName = FullName
+        SELECT @UserId = Id, @FullName = FullName, @PasswordHash = Password
         FROM AppUser
-        WHERE Username COLLATE Latin1_General_BIN = @Username AND Password COLLATE Latin1_General_BIN = @Password;
+        WHERE Username COLLATE Latin1_General_BIN = @Username;
 
         IF @UserId IS NULL
         BEGIN
             ;THROW 50005, 'Invalid username or password.', 1;
         END
 
-        SELECT @UserId AS Id, @Username AS Username, @FullName AS FullName;
+        SELECT @UserId AS Id, @Username AS Username, @FullName AS FullName, @PasswordHash AS PasswordHash;
     END TRY
     BEGIN CATCH
         THROW;

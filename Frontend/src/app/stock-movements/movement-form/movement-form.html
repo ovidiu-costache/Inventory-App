@@ -2,16 +2,28 @@
   <h2>Add stock movement</h2>
 
   <!-- Error message (from frontend validation or backend) -->
-  <div *ngIf="errorMessage" class="alert-error">
-    <strong>Error:</strong> {{ errorMessage }}
-  </div>
+  @if (errorMessage) {
+    <div class="alert-error">
+      <strong>Error:</strong> {{ errorMessage }}
+    </div>
+  }
 
   <!-- novalidate = let Angular/backend handle validation, not the browser -->
   <form (ngSubmit)="onSubmit()" novalidate>
     <table class="form-table">
       <tr>
         <td><label>Product ID</label></td>
-        <td><input type="number" [(ngModel)]="model.productId" name="productId" class="form-input-number"></td>
+        <td>
+          <span class="product-id-row">
+            <input type="number" [(ngModel)]="model.productId" name="productId" class="form-input-number" (ngModelChange)="onProductIdChange()">
+            @if (productLookupInfo) {
+              <span class="product-lookup-info">{{ productLookupInfo }}</span>
+            }
+            @if (productLookupError) {
+              <span class="product-lookup-error">{{ productLookupError }}</span>
+            }
+          </span>
+        </td>
       </tr>
       <tr>
         <td><label>Movement type</label></td>
@@ -25,7 +37,21 @@
       </tr>
       <tr>
         <td><label>Quantity</label></td>
-        <td><input type="number" [(ngModel)]="model.quantity" name="quantity" class="form-input-number"></td>
+        <td>
+          <span class="quantity-row">
+            <input type="number" [(ngModel)]="model.quantity" name="quantity" class="form-input-number" min="1">
+            @if (model.movementTypeId === 3) {
+              <span class="adjustment-direction">
+                <label class="direction-label">
+                  <input type="radio" [(ngModel)]="adjustmentDirection" name="adjustmentDirection" value="add"> Add
+                </label>
+                <label class="direction-label">
+                  <input type="radio" [(ngModel)]="adjustmentDirection" name="adjustmentDirection" value="subtract"> Subtract
+                </label>
+              </span>
+            }
+          </span>
+        </td>
       </tr>
       <tr>
         <td><label>Reason (optional)</label></td>

@@ -7,5 +7,4 @@ public sealed record UpdateProductDto(
     int? CategoryId = null,
     string? UnitOfMeasure = null,
     decimal? Price = null,
-    decimal? ReorderThreshold = null,
-    bool? IsActive = null);
+    decimal? ReorderThreshold = null);

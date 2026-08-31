@@ -249,10 +249,20 @@ BEGIN
     SET XACT_ABORT ON;
 
     BEGIN TRY
-        -- Basic validation
-        IF @Quantity <= 0
+        -- Basic validation: ADJUSTMENT allows negative quantity (subtract), others require positive
+        IF @MovementTypeId = 3
         BEGIN
-            ;THROW 50002, 'Quantity must be strictly positive.', 1;
+            IF @Quantity = 0
+            BEGIN
+                ;THROW 50002, 'Quantity must not be zero.', 1;
+            END;
+        END
+        ELSE
+        BEGIN
+            IF @Quantity <= 0
+            BEGIN
+                ;THROW 50002, 'Quantity must be strictly positive.', 1;
+            END;
         END;
         
         IF @CreatedByUserId NOT IN (SELECT Id FROM AppUser)
@@ -286,7 +296,7 @@ BEGIN
 
         DECLARE @NewStock DECIMAL(18,2);
 
-        -- 1 = IN; 2 = OUT; 3 = ADJUSTMENT; 4 = TRANSFER;
+        -- 1 = IN; 2 = OUT; 3 = ADJUSTMENT (signed qty); 4 = TRANSFER;
         IF @MovementTypeId = 1
         BEGIN
             SET @NewStock = @CurrentStock + @Quantity;
@@ -302,7 +312,12 @@ BEGIN
         END
         ELSE IF @MovementTypeId = 3
         BEGIN
-            SET @NewStock = @Quantity;
+            -- ADJUSTMENT: quantity is signed (+/- from current stock)
+            SET @NewStock = @CurrentStock + @Quantity;
+            IF @NewStock < 0
+            BEGIN
+                ;THROW 50002, 'Adjustment would result in negative stock.', 1;
+            END;
         END
         ELSE
         BEGIN

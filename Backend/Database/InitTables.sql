@@ -44,9 +44,9 @@ BEGIN
     
     INSERT INTO AppUser (Username, FullName, Password) 
     VALUES 
-        ('admin', 'Admin InvetoryApp', 'admin123'), 
-        ('operator_depozit_pc', 'Stanescu Dan', '123456'), 
-        ('operator_depozit_periferice', 'Lucescu Mihai', '123456');
+        ('admin', 'Admin InvetoryApp', '$2b$12$rG.Dbt8BcHaN8HsGCTxG0e9HSzXECCBCFrxxooJPr065vyb8quGVS'), -- admin123
+        ('operator_depozit_pc', 'Stanescu Dan', '$2b$12$T3BTyOOHpthB6ALM9chu8.xGfhNeVKVYrJofoJEVmxsMfDzlx5WWu'), -- 123456
+        ('operator_depozit_periferice', 'Lucescu Mihai', '$2b$12$T3BTyOOHpthB6ALM9chu8.xGfhNeVKVYrJofoJEVmxsMfDzlx5WWu'); -- 123456
 END
 GO
 
@@ -77,7 +77,7 @@ BEGIN
         Id INT IDENTITY(1,1) PRIMARY KEY,
         ProductId INT NOT NULL,
         MovementTypeId TINYINT NOT NULL,
-        Quantity DECIMAL(18,2) NOT NULL CHECK (Quantity > 0),
+        Quantity DECIMAL(18,2) NOT NULL CHECK (Quantity <> 0),
         ResultingStock DECIMAL(18,2) NOT NULL,
         Reason NVARCHAR(200),
         ReferenceCode NVARCHAR(100),

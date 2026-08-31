@@ -1,9 +1,11 @@
 <div class="auth-container">
   <h2>Sign Up</h2>
 
-  <div *ngIf="errorMessage" class="alert-error">
-    <strong>Error:</strong> {{ errorMessage }}
-  </div>
+  @if (errorMessage) {
+    <div class="alert-error">
+      <strong>Error:</strong> {{ errorMessage }}
+    </div>
+  }
 
   <form (ngSubmit)="onSubmit()" novalidate>
     <div class="mb-3">

@@ -2,10 +2,12 @@
   <h2>Stock Movements History</h2>
 
   <!-- Connection error -->
-  <div *ngIf="loadError" class="alert-error">
-    Cannot connect to server. Make sure the backend is running.
-    <button class="btn-secondary ml-2" (click)="loadMovements()">Retry</button>
-  </div>
+  @if (loadError) {
+    <div class="alert-error">
+      Cannot connect to server. Make sure the backend is running.
+      <button class="btn-secondary ml-2" (click)="loadMovements()">Retry</button>
+    </div>
+  }
 
   <!-- Filters -->
   <div class="filter-bar">
@@ -29,7 +31,7 @@
         <label>User</label>
         <select [(ngModel)]="filterUserId">
           <option [ngValue]="null">All users</option>
-          @for (u of users; track u.id){
+          @for (u of users; track u.id) {
             <option [ngValue]="u.id">{{ u.username }}</option>
           }
         </select>
@@ -64,35 +66,45 @@
         <th>Product Code</th>
         <th class="sortable-header" (click)="toggleSort('PRODUCT_NAME')">
           Product Name
-          <span *ngIf="currentSortBy === 'PRODUCT_NAME'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+          @if (currentSortBy === 'PRODUCT_NAME') {
+            <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+          }
         </th>
         <th>Type</th>
         <th class="sortable-header" (click)="toggleSort('QUANTITY')">
           Quantity
-          <span *ngIf="currentSortBy === 'QUANTITY'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+          @if (currentSortBy === 'QUANTITY') {
+            <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+          }
         </th>
         <th>Resulting Stock</th>
         <th class="sortable-header" (click)="toggleSort('CREATED_AT')">
           Date
-          <span *ngIf="currentSortBy === 'CREATED_AT'">{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+          @if (currentSortBy === 'CREATED_AT') {
+            <span>{{ currentSortDir === 'ASC' ? '▲' : '▼' }}</span>
+          }
         </th>
         <th>User</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let m of movements">
-        <td>{{ m.id }}</td>
-        <td><strong>{{ m.productCode }}</strong></td>
-        <td>{{ m.productName }}</td>
-        <td>{{ translateType(m.movementType) }}</td>
-        <td>{{ m.quantity }}</td>
-        <td>{{ m.resultingStock }}</td>
-        <td>{{ m.createdAt | date:'short' }}</td>
-        <td>{{ m.createdBy }}</td>
-      </tr>
-      <tr *ngIf="movements.length === 0 && !loadError">
-        <td colspan="8">No stock movements found.</td>
-      </tr>
+      @for (m of movements; track m.id) {
+        <tr>
+          <td>{{ m.id }}</td>
+          <td><strong>{{ m.productCode }}</strong></td>
+          <td>{{ m.productName }}</td>
+          <td>{{ translateType(m.movementType) }}</td>
+          <td>{{ m.quantity }}</td>
+          <td>{{ m.resultingStock }}</td>
+          <td>{{ m.createdAt | date:'short' }}</td>
+          <td>{{ m.createdBy }}</td>
+        </tr>
+      }
+      @if (movements.length === 0 && !loadError) {
+        <tr>
+          <td colspan="8">No stock movements found.</td>
+        </tr>
+      }
     </tbody>
   </table>
 
