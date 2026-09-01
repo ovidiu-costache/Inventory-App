@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { StockMovementService } from '../../services/stock-movement.service';
 import { StockMovement as StockMovementModel } from '../../models/stock-movement.model';
 import { AuthService } from '../../services/auth.service';
@@ -35,10 +35,16 @@ export class MovementListComponent implements OnInit {
   constructor(
     private movementService: StockMovementService,
     private authService: AuthService,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    // Pre-fill productId filter from query param (e.g. from product detail "Stock History" button)
+    const productId = this.route.snapshot.queryParamMap.get('productId');
+    if (productId) {
+      this.filterProductId = Number(productId);
+    }
     this.loadUsers();
     this.loadMovements();
   }

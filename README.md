@@ -71,6 +71,9 @@ Write stored procedures for `INSERT`/`UPDATE` operations and implement `POST`, `
 > **Do NOT implement `PUT` or `DELETE` for stock movements.**  
 > Stock movements are **immutable**. If a movement is incorrect, a new adjustment movement must be created instead.
 
+> 🔒 **Concurrency Control Strategy:**  
+> The system employs **Pessimistic Concurrency Control** for stock operations. When recording a new stock movement, the `sp_InsertStockMovement` stored procedure uses a `SELECT ... WITH (UPDLOCK, NOWAIT)` hint on the `Product` table. This locks the specific product row exclusively, forcing any simultaneous transactions attempting to modify the same product's stock to immediately fail with SQL Error 1222 (`Lock request time out period exceeded`). The ASP.NET Core `GlobalExceptionHandler` intercepts this error and automatically returns an **HTTP 409 Conflict** status to the client, ensuring absolute stock consistency without deadlocks or dirty reads.
+
 ### LowStockNotification
 
 - **`PATCH /api/notifications/{id}/resolve`**

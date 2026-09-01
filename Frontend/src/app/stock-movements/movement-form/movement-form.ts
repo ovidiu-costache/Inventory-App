@@ -5,6 +5,9 @@ import { Router, RouterModule } from '@angular/router';
 import { StockMovementService, CreateStockMovementDto } from '../../services/stock-movement.service';
 import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
+import { ProductsService } from '../../services/products.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-movement-form',
@@ -22,12 +25,21 @@ export class MovementFormComponent {
     createdByUserId: 1 // hardcoded — no auth system yet
   };
 
+  // Adjustment direction toggle (add or subtract)
+  adjustmentDirection: 'add' | 'subtract' = 'add';
+
+  // Product lookup fields
+  productLookupInfo = '';
+  productLookupError = '';
+  private productIdSubject = new Subject<number>();
+
   errorMessage = '';
 
   constructor(
     private movementService: StockMovementService,
     private notificationService: NotificationService,
     private authService: AuthService,
+    private productsService: ProductsService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
@@ -36,6 +48,35 @@ export class MovementFormComponent {
     if (user) {
       this.model.createdByUserId = user.id;
     }
+
+    // Reactive product lookup with debounce
+    this.productIdSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(id => {
+      if (!id) {
+        this.productLookupInfo = '';
+        this.productLookupError = '';
+        this.cdr.detectChanges();
+        return;
+      }
+      this.productsService.getProduct(id).subscribe({
+        next: (product) => {
+          this.productLookupInfo = `${product.code} — ${product.name} (stock: ${product.currentStock})`;
+          this.productLookupError = '';
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.productLookupInfo = '';
+          this.productLookupError = `No product found with ID ${id}`;
+          this.cdr.detectChanges();
+        }
+      });
+    });
+  }
+
+  onProductIdChange(): void {
+    this.productIdSubject.next(this.model.productId);
   }
 
   onSubmit(): void {
@@ -53,7 +94,14 @@ export class MovementFormComponent {
       return;
     }
 
-    this.movementService.createMovement(this.model).subscribe({
+    // Build the DTO to send (for ADJUSTMENT, apply the direction sign)
+    const dto: CreateStockMovementDto = { ...this.model };
+    if (dto.movementTypeId === 3) {
+      // Apply direction
+      dto.quantity = this.adjustmentDirection === 'add' ? Math.abs(dto.quantity) : -Math.abs(dto.quantity);
+    }
+
+    this.movementService.createMovement(dto).subscribe({
       next: () => {
         // Fetch notifications to update the badge immediately
         this.notificationService.fetchNotifications();

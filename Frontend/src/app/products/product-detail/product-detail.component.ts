@@ -232,6 +232,10 @@ export class ProductDetailComponent implements OnInit {
         });
     }
 
+    goToHistory(): void {
+        this.router.navigate(['/movements'], { queryParams: { productId: this.productId } });
+    }
+
     goBack(): void {
         this.router.navigate(['/products']);
     }

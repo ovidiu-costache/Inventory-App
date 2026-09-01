@@ -452,3 +452,78 @@ input:disabled, select:disabled, textarea:disabled {
 }
 .btn-reset:hover { background-color: #dde0e4; }
 .btn-reset:active { transform: scale(0.97); }
+
+/* ── Product ID Lookup ── */
+.product-id-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-lookup-info {
+  font-size: 0.88rem;
+  color: #28a745;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.product-lookup-error {
+  font-size: 0.88rem;
+  color: #dc3545;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Adjustment Direction Toggle ── */
+.quantity-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adjustment-direction {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.direction-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+}
+
+.direction-label input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* ── Movement History Button ── */
+.btn-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-family: inherit;
+  height: 40px;
+  text-decoration: none;
+  padding: 0 20px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(23, 162, 184, 0.2);
+}
+.btn-info:hover {
+  background-color: #138496;
+  box-shadow: 0 4px 6px rgba(23, 162, 184, 0.3);
+}
+.btn-info:active { transform: translateY(1px); }

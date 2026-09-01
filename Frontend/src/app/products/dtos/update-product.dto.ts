@@ -6,5 +6,4 @@ export interface UpdateProductDto {
     unitOfMeasure?: string;
     price?: number;
     reorderThreshold?: number;
-    isActive?: boolean;
 }

@@ -1,4 +1,5 @@
 using Application.DTOs;
+using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -234,7 +235,12 @@ public class DbServices {
             throw new ArgumentException("Invalid product ID.");
         }
 
-        if (dto.Quantity <= 0)
+        if (dto.MovementTypeId == MovementTypeEnum.ADJUSTMENT)
+        {
+            if (dto.Quantity == 0)
+                throw new ArgumentException("Quantity must not be zero.");
+        }
+        else if (dto.Quantity <= 0)
         {
             throw new ArgumentException("Quantity must be greater than zero.");
         }
@@ -281,13 +287,25 @@ public class DbServices {
             throw new ArgumentException("Username and Password are required.");
 
         // sp_LoginUser
-        var results = await _db.Database.SqlQueryRaw<UserDto>(
-            "EXEC sp_LoginUser @Username, @Password",
-            new SqlParameter("@Username", dto.Username),
-            new SqlParameter("@Password", dto.Password)
+        var results = await _db.Database.SqlQueryRaw<LoginResultDto>(
+            "EXEC sp_LoginUser @Username",
+            new SqlParameter("@Username", dto.Username)
         ).ToListAsync();
 
-        return results.First();
+        var userResult = results.FirstOrDefault();
+        if (userResult == null)
+            throw new ArgumentException("Invalid username or password.");
+
+        bool isPasswordValid = BCrypt.Net.BCrypt.Verify(dto.Password, userResult.PasswordHash);
+        if (!isPasswordValid)
+            throw new ArgumentException("Invalid username or password.");
+
+        return new UserDto
+        {
+            Id = userResult.Id,
+            Username = userResult.Username,
+            FullName = userResult.FullName
+        };
     }
 
     public async Task<UserDto> SignUpAsync(SignUpRequestDto dto)
@@ -296,12 +314,14 @@ public class DbServices {
         if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password) || string.IsNullOrWhiteSpace(dto.FullName))
             throw new ArgumentException("All fields are required.");
 
+        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
         // sp_SignUpUser
         var results = await _db.Database.SqlQueryRaw<UserDto>(
             "EXEC sp_SignUpUser @Username, @FullName, @Password",
             new SqlParameter("@Username", dto.Username),
             new SqlParameter("@FullName", dto.FullName),
-            new SqlParameter("@Password", dto.Password)
+            new SqlParameter("@Password", hashedPassword)
         ).ToListAsync();
 
         return results.First();

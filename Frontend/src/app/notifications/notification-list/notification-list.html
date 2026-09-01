@@ -1,11 +1,14 @@
 <div>
   <h2>Low Stock Alerts</h2>
 
-  <div *ngIf="notifications.length === 0" class="alert-success">
-    No current notifications. All products have sufficient stock.
-  </div>
+  @if (notifications.length === 0) {
+    <div class="alert-success">
+      No current notifications. All products have sufficient stock.
+    </div>
+  }
 
-  <table *ngIf="notifications.length > 0" class="modern-table">
+  @if (notifications.length > 0) {
+  <table class="modern-table">
     <thead>
       <tr class="alert-warning">
         <th>Trigger Date</th>
@@ -31,4 +34,5 @@
       </tr>
     </tbody>
   </table>
+  }
 </div>
