@@ -5,6 +5,7 @@ import { GetItemsPage } from '../models/get-items-page.model';
 import { Product } from '../models/product.model';
 import { CreateProductDto } from '../products/dtos/create-product.dto';
 import { UpdateProductDto } from '../products/dtos/update-product.dto';
+import { SemanticSearchResult } from '../models/semantic-search-result.model';
 
 
 @Injectable({
@@ -61,5 +62,12 @@ export class ProductsService {
 
     restoreProduct(id: number): Observable<void> {
         return this.http.patch<void>(`${this.apiUrl}/${id}/restore`, {});
+    }
+
+    semanticSearch(query: string, topK: number = 5): Observable<SemanticSearchResult[]> {
+        const params = new HttpParams()
+            .set('query', query)
+            .set('topK', topK.toString());
+        return this.http.get<SemanticSearchResult[]>(`${this.apiUrl}/semantic-search`, { params });
     }
 }

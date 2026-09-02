@@ -15,4 +15,7 @@ public class Product
     // FK for Category
     public int CategoryId { get; set; }
     public Category Category { get; set; } = null!;
+
+    // AI Semantic Search - JSON array of float[]
+    public string? Embedding { get; set; }
 }

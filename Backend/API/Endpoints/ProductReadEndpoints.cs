@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Infrastructure.Services;
 
 namespace API.Endpoints
@@ -34,6 +34,57 @@ namespace API.Endpoints
                     return Results.NotFound();
                 }
                 return Results.Ok(product);
+            });
+
+            // GET /api/products/semantic-search?query=...&topK=5
+            group.MapGet("/semantic-search", async (
+                DbServices db, EmbeddingService embeddingService,
+                string query, int topK = 5) =>
+            {
+                if (string.IsNullOrWhiteSpace(query))
+                    return Results.BadRequest("Query is required.");
+
+                var queryEmbedding = await embeddingService.GetEmbeddingAsync(query);
+                if (queryEmbedding == null)
+                    return Results.Problem("AI search is temporarily unavailable. Please try again later.");
+
+                var results = await db.SemanticSearchAsync(queryEmbedding, topK);
+
+                return Results.Ok(results);
+            });
+
+            // POST /api/products/reindex-embeddings
+            group.MapPost("/reindex-embeddings", async (DbServices db, EmbeddingService embeddingService) =>
+            {
+                var productIds = await db.GetActiveProductIdsWithoutEmbeddingAsync();
+                int successCount = 0;
+                int failCount = 0;
+
+                foreach (var productId in productIds) {
+                    try {
+                        var product = await db.GetProductByIdForEmbeddingAsync(productId);
+                        if (product == null) continue;
+
+                        var text = EmbeddingService.BuildProductText(
+                            product.Code, product.Name, product.Description, product.Category);
+                        var embedding = await embeddingService.GetEmbeddingAsync(text);
+
+                        if (embedding != null) {
+                            await db.UpdateProductEmbeddingAsync(productId, embedding);
+                            successCount++;
+                        } else {
+                            failCount++;
+                        }
+
+                        // Small delay to respect rate limits
+                        await Task.Delay(100);
+                    }
+                    catch {
+                        failCount++;
+                    }
+                }
+
+                return Results.Ok(new { Indexed = successCount, Failed = failCount, Total = productIds.Count });
             });
 
             return group;

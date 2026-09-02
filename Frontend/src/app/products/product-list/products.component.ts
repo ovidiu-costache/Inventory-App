@@ -9,6 +9,7 @@ import { SortDirEnum } from '../enums/sort-dir.enum';
 import { StockStateEnum } from '../enums/stock-state.enum';
 import { CategoriesService } from '../../services/categories.service';
 import { Category } from '../../models/category.model';
+import { SemanticSearchResult } from '../../models/semantic-search-result.model';
 
 @Component({
     selector: 'app-products',
@@ -37,6 +38,13 @@ export class ProductsComponent implements OnInit {
     filterStockState: StockStateEnum | undefined = undefined;
     filterMinPrice: number | undefined = undefined;
     filterMaxPrice: number | undefined = undefined;
+
+    // AI Search
+    aiSearchQuery: string = '';
+    aiSearchResults: SemanticSearchResult[] = [];
+    aiSearchLoading = false;
+    aiSearchError: string | null = null;
+    showAiResults = false;
 
     // Sort fields
     currentSortBy: SortByEnum = SortByEnum.NAME;
@@ -109,6 +117,34 @@ export class ProductsComponent implements OnInit {
         this.currentSortDir = SortDirEnum.ASC;
         this.page = 1;
         this.loadProducts();
+    }
+
+    onAiSearch(): void {
+        if (!this.aiSearchQuery.trim()) return;
+
+        this.aiSearchLoading = true;
+        this.aiSearchError = null;
+        this.showAiResults = true;
+
+        this.productsService.semanticSearch(this.aiSearchQuery).subscribe({
+            next: (results) => {
+                this.aiSearchResults = results;
+                this.aiSearchLoading = false;
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error('AI search error', err);
+                this.aiSearchError = 'AI search is temporarily unavailable.';
+                this.aiSearchLoading = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    closeAiResults(): void {
+        this.showAiResults = false;
+        this.aiSearchResults = [];
+        this.aiSearchQuery = '';
     }
 
     nextPage(): void {
