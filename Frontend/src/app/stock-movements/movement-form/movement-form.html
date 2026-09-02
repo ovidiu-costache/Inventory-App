@@ -12,12 +12,15 @@
   <form (ngSubmit)="onSubmit()" novalidate>
     <table class="form-table">
       <tr>
-        <td><label>Product</label></td>
+        <td><label for="productId">Product</label></td>
         <td>
           <select
+            id="productId"
             [(ngModel)]="model.productId"
             name="productId"
+            class="form-input"
             (ngModelChange)="onProductChange()">
+            <option [ngValue]="0" disabled>Select a product...</option>
             @for (p of products; track p.id) {
               <option [ngValue]="p.id">
                 {{p.code}} - {{p.name}} (stock: {{p.currentStock}})

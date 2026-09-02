@@ -52,6 +52,11 @@ export class MovementFormComponent implements OnInit {
       next: (res) => {
         this.products = res.items;
         this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load products', err);
+        this.errorMessage = 'Could not load products for the dropdown. Please refresh.';
+        this.cdr.detectChanges();
       }
     });
   }
