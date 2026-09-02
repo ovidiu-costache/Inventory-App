@@ -12,17 +12,18 @@
   <form (ngSubmit)="onSubmit()" novalidate>
     <table class="form-table">
       <tr>
-        <td><label>Product ID</label></td>
+        <td><label>Product</label></td>
         <td>
-          <span class="product-id-row">
-            <input type="number" [(ngModel)]="model.productId" name="productId" class="form-input-number" (ngModelChange)="onProductIdChange()">
-            @if (productLookupInfo) {
-              <span class="product-lookup-info">{{ productLookupInfo }}</span>
+          <select
+            [(ngModel)]="model.productId"
+            name="productId"
+            (ngModelChange)="onProductChange()">
+            @for (p of products; track p.id) {
+              <option [ngValue]="p.id">
+                {{p.code}} - {{p.name}} (stock: {{p.currentStock}})
+              </option>
             }
-            @if (productLookupError) {
-              <span class="product-lookup-error">{{ productLookupError }}</span>
-            }
-          </span>
+          </select>
         </td>
       </tr>
       <tr>

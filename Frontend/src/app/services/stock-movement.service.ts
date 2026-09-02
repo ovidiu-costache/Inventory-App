@@ -65,6 +65,11 @@ export class StockMovementService {
     return this.http.get<GetItemsPage<StockMovementModel>>(this.apiUrl, { params });
   }
 
+  // Fetch unpaginated history for a single product (used for Stock History view)
+  getHistoryForProduct(productId: number): Observable<StockMovementModel[]> {
+    return this.http.get<StockMovementModel[]>(`${this.apiUrl}/${productId}`);
+  }
+
   // POST a new stock movement
   createMovement(data: CreateStockMovementDto): Observable<StockMovementModel> {
     return this.http.post<StockMovementModel>(this.apiUrl, data);
