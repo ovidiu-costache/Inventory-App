@@ -20,7 +20,7 @@
             name="productId"
             class="form-input"
             (ngModelChange)="onProductChange()">
-            <option [ngValue]="0" disabled>Select a product...</option>
+            <option [ngValue]="0" disabled hidden>Select a product...</option>
             @for (p of products; track p.id) {
               <option [ngValue]="p.id">
                 {{p.code}} - {{p.name}} (stock: {{p.currentStock}})
