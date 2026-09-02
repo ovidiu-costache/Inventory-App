@@ -1,13 +1,13 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Product } from '../../models/product.model';
 import { StockMovementService, CreateStockMovementDto } from '../../services/stock-movement.service';
 import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
 import { ProductsService } from '../../services/products.service';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-movement-form',
@@ -15,7 +15,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './movement-form.html'
 })
-export class MovementFormComponent {
+export class MovementFormComponent implements OnInit {
   model: CreateStockMovementDto = {
     productId: 0,
     movementTypeId: 1,
@@ -28,11 +28,8 @@ export class MovementFormComponent {
   // Adjustment direction toggle (add or subtract)
   adjustmentDirection: 'add' | 'subtract' = 'add';
 
-  // Product lookup fields
-  productLookupInfo = '';
-  productLookupError = '';
-  private productIdSubject = new Subject<number>();
-
+  // Product list for dropdown
+  products: Product[] = [];
   errorMessage = '';
 
   constructor(
@@ -48,35 +45,19 @@ export class MovementFormComponent {
     if (user) {
       this.model.createdByUserId = user.id;
     }
+  }
 
-    // Reactive product lookup with debounce
-    this.productIdSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(id => {
-      if (!id) {
-        this.productLookupInfo = '';
-        this.productLookupError = '';
+  ngOnInit(): void {
+    this.productsService.getProducts(1, 1000, true).subscribe({
+      next: (res) => {
+        this.products = res.items;
         this.cdr.detectChanges();
-        return;
       }
-      this.productsService.getProduct(id).subscribe({
-        next: (product) => {
-          this.productLookupInfo = `${product.code} — ${product.name} (stock: ${product.currentStock})`;
-          this.productLookupError = '';
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.productLookupInfo = '';
-          this.productLookupError = `No product found with ID ${id}`;
-          this.cdr.detectChanges();
-        }
-      });
     });
   }
 
-  onProductIdChange(): void {
-    this.productIdSubject.next(this.model.productId);
+  onProductChange(): void {
+    // Optional hook when product is selected
   }
 
   onSubmit(): void {

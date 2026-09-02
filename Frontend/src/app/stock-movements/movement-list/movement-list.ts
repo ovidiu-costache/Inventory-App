@@ -69,6 +69,24 @@ export class MovementListComponent implements OnInit {
     const prodId = this.filterProductId || undefined;
     const userId = this.filterUserId || undefined;
 
+    // Use unpaginated history endpoint if we ONLY filter by productId and sorting is default
+    if (prodId && !type && !from && !to && !userId && this.currentSortBy === 'CREATED_AT' && this.currentSortDir === 'DESC') {
+      this.movementService.getHistoryForProduct(prodId).subscribe({
+        next: (response) => {
+          this.movements = response;
+          this.hasMore = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading product history', err);
+          this.movements = [];
+          this.loadError = true;
+          this.cdr.detectChanges();
+        }
+      });
+      return;
+    }
+
     this.movementService.getMovements(
       this.page, this.pageSize, type, from, to, prodId, userId, 
       this.currentSortBy, this.currentSortDir
