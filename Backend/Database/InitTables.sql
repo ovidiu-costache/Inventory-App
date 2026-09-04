@@ -65,6 +65,7 @@ BEGIN
         CurrentStock DECIMAL(18,2) NOT NULL DEFAULT 0,
         ReorderThreshold DECIMAL(18,2) NOT NULL DEFAULT 0,
         IsActive BIT NOT NULL DEFAULT 1,
+        Embedding NVARCHAR(MAX) NULL,
         
         FOREIGN KEY (CategoryId) REFERENCES Category(Id)
     );

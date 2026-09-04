@@ -334,4 +334,56 @@ public class DbServices {
             "EXEC sp_GetAllUsers"
         ).ToListAsync();
     }
+
+    // ── AI Semantic Search ──
+
+    public async Task UpdateProductEmbeddingAsync(int productId, float[] embedding)
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(embedding);
+        await _db.Database.ExecuteSqlRawAsync(
+            "UPDATE Product SET Embedding = @Embedding WHERE Id = @Id",
+            new SqlParameter("@Embedding", json),
+            new SqlParameter("@Id", productId));
+    }
+
+    public async Task<List<SemanticSearchResultDto>> SemanticSearchAsync(
+        float[] queryEmbedding, int topK)
+    {
+        // Load all active products that have an embedding
+        var products = await _db.Products
+            .Where(p => p.IsActive && p.Embedding != null)
+            .Select(p => new { p.Id, p.Code, p.Name, p.Embedding })
+            .ToListAsync();
+
+        // Compute cosine similarity in memory
+        var results = products
+            .Select(p =>
+            {
+                var embedding = System.Text.Json.JsonSerializer
+                    .Deserialize<float[]>(p.Embedding!);
+                var score = EmbeddingService.CosineSimilarity(queryEmbedding, embedding!);
+                return new SemanticSearchResultDto(p.Id, p.Code, p.Name, score);
+            })
+            .OrderByDescending(r => r.Score)
+            .Take(topK)
+            .ToList();
+
+        return results;
+    }
+
+    public async Task<List<int>> GetActiveProductIdsWithoutEmbeddingAsync()
+    {
+        return await _db.Products
+            .Where(p => p.IsActive && p.Embedding == null)
+            .Select(p => p.Id)
+            .ToListAsync();
+    }
+
+    public async Task<ProductDto?> GetProductByIdForEmbeddingAsync(int id)
+    {
+        return await _db.Database.SqlQuery<ProductDto>(
+                $"EXEC sp_GetProduct @Id = {id}")
+            .ToListAsync()
+            .ContinueWith(t => t.Result.FirstOrDefault());
+    }
 }
