@@ -1,150 +1,87 @@
-# Inventory-App
+# Inventory App
 
-# Backend Task Division Proposal
+Hi there! 👋 This is an Inventory Management Application we built during our internship. Basically, it helps you keep track of products, stock availability, and all movements (inbound, outbound, and stock adjustments).
 
-We propose dividing the backend work similarly to IssueTracker: one of us will handle **read operations** (database queries and `GET` endpoints), while the other will handle **write operations** (database modifications and `POST`/`PATCH`/`DELETE` endpoints).
+We both worked on it and designed it as a multi-user system. We had to tackle some real-world problems, like what happens when two people try to update the stock at the exact same time (we used pessimistic locking for that!).
 
----
+## 🚀 What it can do
 
-## 📖 Intern 1: Read Operations
+*   **Products:** You can create, edit, and soft-delete products.
+*   **Stock Movements:** Track IN, OUT, and ADJUSTMENT operations.
+*   **Concurrency:** Super safe stock updates. We use database-level locks to prevent bugs if two users click submit at the exact same time.
+*   **AI Adjustment Review:** We integrated the Google Gemini API. If someone makes a manual stock adjustment and the reason looks suspicious, the AI catches it and asks for an extra confirmation.
+*   **Low Stock Notifications:** If a product drops below its reorder threshold, you get an automatic notification.
+*   **Auth (Basic):** Login and Signup with hashed passwords (BCrypt).
 
-**Responsibilities:**  
-Write stored procedures for `SELECT` queries and implement `GET` endpoints.
+## 🛠️ Built with
 
-### Product
-
-- **`GET /api/products`**
-  - Retrieves a paginated list of products;
-  - Supports filtering and sorting;
-  - Calls stored procedure `sp_GetProductsPage`;
-- **`GET /api/products/{id}`**
-  - Retrieves full details for a single product based on the ID in the URL;
-  - Calls stored procedure `sp_GetProductById`;
-
-### StockMovement
-
-- **`GET /api/stock-movements`**
-  - Retrieves the paginated history of stock movements;
-  - Supports filtering and sorting;
-  - Calls stored procedure `sp_GetMovementsPage`;
-- **`GET /api/stock-movements/{productId}`** *(Optional)*
-  - Retrieves the movement history for a specific product based on its ID;
-  - Calls stored procedure `sp_GetStockMovementsById`;
-
-### LowStockNotification
-
-- **`GET /api/notifications`**
-  - Lists low-stock notifications;
-  - Can filter notifications based on the `IsResolved` field;
-
-**Note:** All stored procedures for read operations will be written in the `ReadProcedures.sql` file under the `Database` directory.
+*   **Backend:** .NET 10 (Minimal API), EF Core 10
+*   **Database:** SQL Server (heavy logic is in Stored Procedures)
+*   **Frontend:** Angular 22 (Standalone Components)
+*   **AI:** Google Gemini API (`gemini-3.6-flash`)
 
 ---
 
-## ✍️ Intern 2: Write Operations
+## ⚙️ How to run it locally
 
-**Responsibilities:**  
-Write stored procedures for `INSERT`/`UPDATE` operations and implement `POST`, `PATCH`, and `DELETE` endpoints.
+To get the project running on your machine, you need to do a bit of setup. You have to configure your own database passwords and API key. It won't work with just one click!
 
-### Product
+### 1. Clone the repo
+```bash
+git clone https://github.com/ovidiu-costache/Inventory-App
+cd Inventory-App
+```
 
-- **`POST /api/products`**
-  - Creates a new product using `CreateProductDto`;
-  - Handles the required validation rules;
-  - Calls stored procedure `sp_InsertProduct`;
-- **`PATCH /api/products/{id}`**
-  - Updates product data using `UpdateProductDto`;
-  - Calls stored procedure `sp_UpdateProduct`;
-- **`DELETE /api/products/{id}`**
-  - Performs a **soft delete** by setting `IsActive = 0`;
-  - Does not physically delete the product from the database;
-  - Calls stored procedure `sp_SoftDeleteProduct`;
+### 2. Set up the Database
+You need SQL Server installed locally. 
 
-### StockMovement
+Go to `Backend/API/appsettings.json` and change the `DefaultConnection` to match your SQL server (put YOUR username and password). Example:
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=localhost,1433;Database=InventoryAppDb;User Id=sa;Password=YOUR_PASSWORD_HERE;TrustServerCertificate=True;"
+}
+```
 
-- **`POST /api/stock-movements`**
-  - Records a stock movement and updates the product stock in a **single transaction with pessimistic locking**;
-  - Uses `CreateStockMovementDto`;
-  - Calls stored procedure `sp_InsertStockMovement`;
+If you want to run the project and access it from other computers on the same Wi-Fi, don't forget to change `localhost` to your local IP address in `Backend/API/Properties/launchSettings.json`.
 
-> ⚠️ **Important:**  
-> **Do NOT implement `PUT` or `DELETE` for stock movements.**  
-> Stock movements are **immutable**. If a movement is incorrect, a new adjustment movement must be created instead.
+### 3. Set up the Gemini API Key
+For the AI check to work, you need a Google API key (it's free if you have a student account).
 
-> 🔒 **Concurrency Control Strategy:**  
-> The system employs **Pessimistic Concurrency Control** for stock operations. When recording a new stock movement, the `sp_InsertStockMovement` stored procedure uses a `SELECT ... WITH (UPDLOCK, NOWAIT)` hint on the `Product` table. This locks the specific product row exclusively, forcing any simultaneous transactions attempting to modify the same product's stock to immediately fail with SQL Error 1222 (`Lock request time out period exceeded`). The ASP.NET Core `GlobalExceptionHandler` intercepts this error and automatically returns an **HTTP 409 Conflict** status to the client, ensuring absolute stock consistency without deadlocks or dirty reads.
+Go to `Backend/API/appsettings.Development.json` (or `appsettings.json`) and add this piece of code, pasting the key you generated:
+```json
+"Gemini": {
+  "ApiKey": "YOUR_GEMINI_KEY_HERE"
+}
+```
+**Do NOT commit your key to GitHub!** 
 
-### LowStockNotification
+### 4. Database & SQL Scripts
+The app uses some `.sql` scripts to create the tables and procedures.
+In the root `package.json` file, we have a script called `db:init` that runs commands using `sqlcmd.exe`.
+**WARNING:** For this command to work, go into `package.json` and add the password to your actual SQL Server inside the `db:init` script. Alternatively, you can just open SSMS / Azure Data Studio and manually run the 3 scripts from the `Backend/Database` folder.
 
-- **`PATCH /api/notifications/{id}/resolve`**
-  - Marks a low-stock notification as resolved;
+### 5. Install & Run
+Now that everything is set up, install the frontend packages:
+```bash
+npm install
+```
 
----
+If you put the correct password in `package.json` at step 4, you can start the whole project with a single command:
+```bash
+npm run dev
+```
+This command:
+1. Runs the SQL scripts to build your database.
+2. Starts the .NET Backend.
+3. Starts the Angular Frontend.
 
-# Frontend Task Division
-
-The frontend work will be divided in a similar way: each intern will work on the UI for the feature handled by their corresponding backend part.
-
----
-
-## 📦 Intern 1: Products
-
-**Branch:** `feature/products-ui`  
-**Folder:** `src/app/products/`
-
-### Product Service
-
-- **`product.service.ts`**
-  - Handles the API calls for products;
-  - Implements `GET` with pagination, filtering and sorting;
-  - Implements `POST`, `PATCH` and `DELETE`;
-
-### Product List
-
-- Displays products in a table;
-- Includes pagination controls;
-- Includes filtering and sorting options;
-
-### Product Form
-
-- Allows creating a new product;
-- Allows editing an existing product;
-- Handles validation errors returned by the backend;
+When you see both are running, open `http://localhost:4200` in your browser. 
+*(Hint: For testing, you can login with the user `admin` and password `admin123`)*
 
 ---
 
-## 📦 Intern 2: Stock Movements
+## 🔒 Concurrency Control (For the geeks)
+If you're wondering how we handled concurrency: we use **Pessimistic Locking**. In the `sp_InsertStockMovement` stored procedure, we do a `SELECT ... WITH (UPDLOCK, NOWAIT)`. This puts an exclusive lock on that specific product. If someone else tries to modify the stock in that exact millisecond, they get the SQL Error 1222, which we catch in the code and return as an HTTP 409 Conflict. Zero deadlocks!
 
-**Branch:** `feature/movements-ui`  
-**Folder:** `src/app/stock-movements/`
-
-### Stock Movement Service
-
-- **`stock-movement.service.ts`**
-  - Handles the API calls for stock movements;
-  - Implements `GET` with pagination, filtering and sorting;
-  - Implements `POST` for creating new stock movements;
-
-### Movement History
-
-- Displays the stock movement history in a table;
-- Includes pagination controls;
-- Includes filters for date and movement type;
-
-### Stock Movement Form
-
-- Allows creating `IN` and `OUT` stock movements;
-- Displays the error returned by the backend when there is not enough stock;
-
----
-
-## 📌 Frontend Rules
-
-1. Each intern should work **only** in their assigned folder:
-   - Intern 1 → `src/app/products/`
-   - Intern 2 → `src/app/stock-movements/`
-2. If a change to a shared file is needed (`app.routes.ts`, `app.config.ts`, `index.html`, etc.), discuss it with the other intern first.
-3. API calls should use the endpoints already implemented in the backend.
-4. Backend errors should be handled and displayed properly in the UI.
-5. Each feature should be submitted through a separate PR targeting `main`.
-6. After both features are completed, test the full application flow together.
+## 🤖 AI Adjustment Review
+Whenever there's an `ADJUSTMENT` movement, the data (and the reason you type in) goes to the Gemini model. If the AI sees you're trying to change 5000 products for no reason or you write something sketchy, it flags the request and makes you confirm it again in the UI. It's like a smart safety net!

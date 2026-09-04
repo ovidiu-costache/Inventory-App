@@ -14,6 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<DbServices>();
 builder.Services.AddHttpClient<EmbeddingService>();
+builder.Services.AddHttpClient<AiReviewService>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -57,5 +58,9 @@ notificationsGroup.MapNotificationEndpoints();
 // Auth
 var authGroup = app.MapGroup("/api/auth");
 authGroup.MapAuthEndpoints();
+
+// AI
+var aiGroup = app.MapGroup("/api/ai");
+aiGroup.MapAiReviewEndpoints();
 
 app.Run();

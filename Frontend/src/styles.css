@@ -151,6 +151,32 @@ input:disabled, select:disabled, textarea:disabled {
   background-color: #ffcccc;
 }
 
+.btn-warning {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-family: inherit;
+  height: 40px;
+  text-decoration: none;
+  padding: 0 20px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #e0a800;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(224, 168, 0, 0.3);
+}
+.btn-warning:hover {
+  background-color: #c69500;
+  box-shadow: 0 4px 6px rgba(224, 168, 0, 0.4);
+}
+.btn-warning:active { transform: translateY(1px); }
+.btn-warning:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+
 .btn-primary {
   display: inline-flex;
   align-items: center;
