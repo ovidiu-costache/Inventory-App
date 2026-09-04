@@ -1,14 +1,12 @@
 <div>
   <h2>Add stock movement</h2>
 
-  <!-- Error message (from frontend validation or backend) -->
   @if (errorMessage) {
     <div class="alert-error">
       <strong>Error:</strong> {{ errorMessage }}
     </div>
   }
 
-  <!-- novalidate = let Angular/backend handle validation, not the browser -->
   <form (ngSubmit)="onSubmit()" novalidate>
     <table class="form-table">
       <tr>
@@ -18,8 +16,7 @@
             id="productId"
             [(ngModel)]="model.productId"
             name="productId"
-            class="form-input"
-            (ngModelChange)="onProductChange()">
+            class="form-input">
             <option [ngValue]="0" disabled hidden>Select a product...</option>
             @for (p of products; track p.id) {
               <option [ngValue]="p.id">
@@ -68,7 +65,18 @@
     </table>
     <br>
 
-    <button type="submit" class="btn-primary">Save</button>
-    <a routerLink="/movements" class="btn-secondary ml-2">Cancel</a>
+    <!-- AI Review Warning Banner -->
+    @if (isSuspectReview) {
+      <div class="alert-error" style="background-color: #fff3cd; border-color: #e0a800; color: #856404;">
+        <strong>⚠ AI Warning:</strong> {{ suspectExplanation }}
+      </div>
+      <button type="button" class="btn-warning" (click)="onSubmit(true)" [disabled]="isSubmitting">Confirm and submit anyway</button>
+      <a routerLink="/movements" class="btn-secondary ml-2">Cancel</a>
+    } @else {
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+        @if (isSubmitting) { Processing... } @else { Save }
+      </button>
+      <a routerLink="/movements" class="btn-secondary ml-2">Cancel</a>
+    }
   </form>
 </div>
