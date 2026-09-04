@@ -43,20 +43,28 @@ public class AiReviewService
             }
 
             var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
-            var recentAdjustments = await _db.StockMovements
+
+            // Compute aggregates directly in SQL to avoid loading all movements into memory
+            var aggregates = await _db.StockMovements
+                .AsNoTracking()
                 .Where(m => m.ProductId == request.ProductId && m.MovementTypeId == 3 && m.CreatedAt >= thirtyDaysAgo)
-                .OrderByDescending(m => m.CreatedAt)
-                .ToListAsync();
+                .GroupBy(m => m.ProductId)
+                .Select(g => new
+                {
+                    AverageQuantity = g.Average(m => Math.Abs(m.Quantity)),
+                    LastAdjustmentDate = g.Max(m => m.CreatedAt)
+                })
+                .FirstOrDefaultAsync();
 
             var currentStock = product.CurrentStock;
             
             decimal averageAdjustmentQuantity;
             double daysSinceLastAdjustment;
             
-            if (recentAdjustments.Any())
+            if (aggregates != null)
             {
-                averageAdjustmentQuantity = recentAdjustments.Average(m => Math.Abs(m.Quantity));
-                daysSinceLastAdjustment = (DateTime.UtcNow - recentAdjustments.First().CreatedAt).TotalDays;
+                averageAdjustmentQuantity = aggregates.AverageQuantity;
+                daysSinceLastAdjustment = (DateTime.UtcNow - aggregates.LastAdjustmentDate).TotalDays;
             }
             else
             {
@@ -173,7 +181,7 @@ Provided Reason: ""{request.Reason}""
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error evaluating adjustment via Gemini.");
-            return new AiReviewResponseDto("NORMAL", $"AI Service unavailable - {ex.Message}");
+            return new AiReviewResponseDto("NORMAL", "AI Service unavailable - auto-approved.");
         }
     }
 }
