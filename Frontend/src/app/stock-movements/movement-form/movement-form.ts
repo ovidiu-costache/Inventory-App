@@ -91,13 +91,6 @@ export class MovementFormComponent implements OnInit {
         dto.quantity = -Math.abs(dto.quantity);
       }
 
-      const selectedProduct = this.products.find(p => p.id === dto.productId);
-      if (selectedProduct && dto.quantity < 0 && selectedProduct.currentStock + dto.quantity < 0) {
-        this.errorMessage = 'Adjustment would result in negative stock.';
-        this.cdr.detectChanges();
-        return;
-      }
-
       if (!forceSubmit) {
         this.isSubmitting = true;
         this.aiReviewService.reviewAdjustment({
