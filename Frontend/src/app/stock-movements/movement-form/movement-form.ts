@@ -7,6 +7,7 @@ import { StockMovementService, CreateStockMovementDto } from '../../services/sto
 import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
 import { ProductsService } from '../../services/products.service';
+import { AiReviewService } from '../../services/ai-review.service';
 
 
 @Component({
@@ -22,25 +23,27 @@ export class MovementFormComponent implements OnInit {
     quantity: 1,
     reason: '',
     referenceCode: '',
-    createdByUserId: 1 // hardcoded — no auth system yet
+    createdByUserId: 1
   };
 
-  // Adjustment direction toggle (add or subtract)
   adjustmentDirection: 'add' | 'subtract' = 'add';
 
-  // Product list for dropdown
   products: Product[] = [];
   errorMessage = '';
+
+  isSuspectReview = false;
+  suspectExplanation = '';
+  isSubmitting = false;
 
   constructor(
     private movementService: StockMovementService,
     private notificationService: NotificationService,
     private authService: AuthService,
     private productsService: ProductsService,
+    private aiReviewService: AiReviewService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
-    // Dynamically set the createdByUserId from the auth service
     const user = this.authService.currentUserValue;
     if (user) {
       this.model.createdByUserId = user.id;
@@ -61,14 +64,14 @@ export class MovementFormComponent implements OnInit {
     });
   }
 
-  onProductChange(): void {
-    // Optional hook when product is selected
-  }
+  onSubmit(forceSubmit: boolean = false): void {
+    if (this.isSubmitting) {
+      return;
+    }
 
-  onSubmit(): void {
     this.errorMessage = '';
+    this.isSuspectReview = false;
 
-    // Basic validation before sending to backend
     if (!this.model.productId || this.model.productId <= 0) {
       this.errorMessage = 'Product ID must be a positive number.';
       this.cdr.detectChanges();
@@ -80,21 +83,52 @@ export class MovementFormComponent implements OnInit {
       return;
     }
 
-    // Build the DTO to send (for ADJUSTMENT, apply the direction sign)
     const dto: CreateStockMovementDto = { ...this.model };
     if (dto.movementTypeId === 3) {
-      // Apply direction
-      dto.quantity = this.adjustmentDirection === 'add' ? Math.abs(dto.quantity) : -Math.abs(dto.quantity);
+      if (this.adjustmentDirection === 'add') {
+        dto.quantity = Math.abs(dto.quantity);
+      } else {
+        dto.quantity = -Math.abs(dto.quantity);
+      }
+
+      if (!forceSubmit) {
+        this.isSubmitting = true;
+        this.aiReviewService.reviewAdjustment({
+          productId: dto.productId,
+          quantity: dto.quantity,
+          reason: dto.reason || ''
+        }).subscribe({
+          next: (res) => {
+            if (res.verdict === 'SUSPECT') {
+              this.isSuspectReview = true;
+              this.suspectExplanation = res.explanation;
+              this.isSubmitting = false;
+              this.cdr.detectChanges();
+            } else {
+              this.executeSave(dto);
+            }
+          },
+          error: (err) => {
+            console.warn('AI Review failed, proceeding normally as fail-safe.', err);
+            this.executeSave(dto);
+          }
+        });
+        return;
+      }
     }
 
+    this.executeSave(dto);
+  }
+
+  private executeSave(dto: CreateStockMovementDto): void {
+    this.isSubmitting = true;
     this.movementService.createMovement(dto).subscribe({
       next: () => {
-        // Fetch notifications to update the badge immediately
+        // Update notification badge
         this.notificationService.fetchNotifications();
         this.router.navigateByUrl('/movements');
       },
       error: (err) => {
-        // Backend returns ProblemDetails with 'detail' field in English
         if (err.error && err.error.detail) {
           this.errorMessage = err.error.detail;
         } else if (err.status === 0) {
@@ -102,6 +136,7 @@ export class MovementFormComponent implements OnInit {
         } else {
           this.errorMessage = 'An error occurred. Status: ' + err.status;
         }
+        this.isSubmitting = false;
         this.cdr.detectChanges();
       }
     });
